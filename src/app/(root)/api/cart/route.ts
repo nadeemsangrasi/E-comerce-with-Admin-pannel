@@ -29,7 +29,7 @@ export const GET = async (req: NextRequest) => {
       errorResponse("carts not found", false, 404);
     }
 
-    successResponse("Cart fetched successfully", true, 200);
+    successResponse("Cart fetched successfully", true, 200, carts);
   } catch (error) {
     const err = error as Error;
     errorResponse(err.message, false, 500);
@@ -163,24 +163,54 @@ export const PATCH = async (req: NextRequest) => {
       if (isCart[0].quantity >= productStock) {
         errorResponse("Product out of stock", false, 500);
       } else {
+        const newQuantity = (isCart[0].quantity += 1);
         if (isCart[0].productSalePrice) {
-          isCart[0].quantity += 1;
-          isCart[0].productSalePrice += productSalePrice / isCart[0].quantity;
+          const newSaleprice = (isCart[0].productSalePrice +=
+            productSalePrice / isCart[0].quantity);
+          await db
+            .update(cartTable)
+            .set({
+              quantity: newQuantity,
+              productSalePrice: newSaleprice,
+            })
+            .where(eq(cartTable.id, cartId));
         } else {
-          isCart[0].quantity += 1;
-          isCart[0].productPrice += productPrice / isCart[0].quantity;
+          const newPrice = (isCart[0].productPrice +=
+            productPrice / isCart[0].quantity);
+          await db
+            .update(cartTable)
+            .set({
+              quantity: newQuantity,
+              productSalePrice: newPrice,
+            })
+            .where(eq(cartTable.id, cartId));
         }
       }
 
       successResponse("product incremented successfully", true, 200);
     } else {
       if (isCart[0].quantity > 1) {
+        const newQuantity = (isCart[0].quantity -= 1);
         if (isCart[0].productSalePrice) {
-          isCart[0].quantity -= 1;
-          isCart[0].productSalePrice -= productSalePrice / isCart[0].quantity;
+          const newSalePrice = (isCart[0].productSalePrice -=
+            productSalePrice / isCart[0].quantity);
+          await db
+            .update(cartTable)
+            .set({
+              quantity: newQuantity,
+              productSalePrice: newSalePrice,
+            })
+            .where(eq(cartTable.id, cartId));
         } else {
-          isCart[0].quantity -= 1;
-          isCart[0].productPrice -= productPrice / isCart[0].quantity;
+          const newPrice = (isCart[0].productPrice -=
+            productPrice / isCart[0].quantity);
+          await db
+            .update(cartTable)
+            .set({
+              quantity: newQuantity,
+              productSalePrice: newPrice,
+            })
+            .where(eq(cartTable.id, cartId));
         }
       } else {
         errorResponse("no further decremented product", false, 500);
@@ -208,19 +238,12 @@ export const DELETE = async (req: NextRequest) => {
     errorResponse("you are not authorized for this request", false, 403);
   }
   try {
-    const isCart = await db
-      .select()
-      .from(cartTable)
-      .where(eq(cartTable.id, cartId as unknown as number));
-    if (isCart.length === 0) {
-      errorResponse("cart not found", false, 404);
-    }
     const deletedCart = await db
       .delete(cartTable)
       .where(eq(cartTable.id, cartId as unknown as number))
       .returning();
     if (deletedCart.length === 0) {
-      errorResponse("erro deleting cart", false, 500);
+      errorResponse("cart not found", false, 404);
     }
     successResponse("Cart deleted successfully", true, 200);
   } catch (error) {
