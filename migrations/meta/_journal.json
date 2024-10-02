@@ -15,6 +15,13 @@
       "when": 1727764596673,
       "tag": "0001_orange_brother_voodoo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1727801728049,
+      "tag": "0002_same_doomsday",
+      "breakpoints": true
     }
   ]
 }

@@ -10,6 +10,10 @@ const UserProfilePage = () => {
     return redirect("/sign-in");
   }
 
-  return <UserProfile path="/user-profile" />;
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <UserProfile path="/user-profile" />
+    </div>
+  );
 };
 export default UserProfilePage;
