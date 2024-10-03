@@ -5,49 +5,8 @@ import {
   serial,
   text,
   integer,
+  boolean,
 } from "drizzle-orm/pg-core";
-
-export const productTable = pgTable("product", {
-  id: serial("id").primaryKey(),
-  image: text("image").notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
-  description: varchar("description", { length: 255 }).notNull(),
-  category: varchar("category", { length: 255 }).notNull(),
-  brand: varchar("brand", { length: 255 }).notNull(),
-  price: integer("price").notNull(),
-  salePrice: integer("sale_price"),
-  totalStock: integer("total_stock").notNull(),
-  averageReview: integer("average_review"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-// Category table remains the same
-export const categoryTable = pgTable("category", {
-  id: serial("id").primaryKey(),
-  categoryName: varchar("category_name", { length: 255 }).notNull().unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-// Brand table remains the same
-export const brandTable = pgTable("brand", {
-  id: serial("id").primaryKey(),
-  brandName: varchar("brand_name", { length: 255 }).notNull().unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-// Review table: change userId type to varchar
-export const reviewTable = pgTable("review", {
-  id: serial("id").primaryKey(),
-  productId: integer("product_id")
-    .notNull()
-    .references(() => productTable.id),
-  userId: varchar("user_id", { length: 255 }) // Match type with clerkId
-    .notNull()
-    .references(() => userTable.clerkId),
-  reviewValue: integer("review_value").notNull(),
-  reviewMessage: text("review_message"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
 
 export const userTable = pgTable("user", {
   clerkId: varchar("clerk_id", { length: 255 }).notNull().primaryKey().unique(),
@@ -58,13 +17,86 @@ export const userTable = pgTable("user", {
   email: varchar("email", { length: 255 }).notNull(),
   role: varchar("role", { length: 255 }).notNull().default("user"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+export const productTable = pgTable("product", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: varchar("description", { length: 255 }).notNull(),
+  category: varchar("category", { length: 255 }).notNull(),
+  brand: varchar("brand", { length: 255 }).notNull(),
+  price: integer("price").notNull(),
+  salePrice: integer("sale_price"),
+  totalStock: integer("total_stock").notNull(),
+  averageReview: integer("average_review"),
+  isArchive: boolean("is_archive").notNull().default(false),
+  isFeatured: boolean("is_featured").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+export const productImageTable = pgTable("product_image", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id")
+    .notNull()
+    .references(() => productTable.id),
+  imageUrl: varchar("image_url", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+export const reviewTable = pgTable("review", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id")
+    .notNull()
+    .references(() => productTable.id),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => userTable.clerkId),
+  reviewValue: integer("review_value").notNull(),
+  reviewMessage: text("review_message"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+export const categoryTable = pgTable("category", {
+  id: serial("id").primaryKey(),
+  categoryName: varchar("category_name", { length: 255 }).notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+export const brandTable = pgTable("brand", {
+  id: serial("id").primaryKey(),
+  brandName: varchar("brand_name", { length: 255 }).notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
 });
 
 export const cartTable = pgTable("cart", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id", { length: 255 })
     .notNull()
-    .references(() => userTable.clerkId, { onDelete: "cascade" }), // Added onDelete cascade
+    .references(() => userTable.clerkId, { onDelete: "cascade" }),
   productId: integer("product_id")
     .notNull()
     .references(() => productTable.id),
@@ -75,4 +107,38 @@ export const cartTable = pgTable("cart", {
   quantity: integer("quantity").notNull(),
   productStock: integer("product_stock").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+export const orderTable = pgTable("order", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => userTable.clerkId, { onDelete: "cascade" }),
+  isPaid: boolean("is_paid").notNull().default(false),
+  phone: varchar("phone", { length: 255 }).notNull(),
+  address: varchar("address", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+export const orderItemTable = pgTable("order_item", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id")
+    .notNull()
+    .references(() => orderTable.id),
+  productId: integer("product_id")
+    .notNull()
+    .references(() => productTable.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
 });

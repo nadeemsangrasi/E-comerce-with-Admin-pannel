@@ -36,10 +36,10 @@ export const GET = async (req: NextRequest) => {
   }
 };
 export const POST = async (req: NextRequest) => {
-  // const { userId: isUser } = auth();
-  // if (!isUser) {
-  //   return errorResponse("user not authenticated", false, 500);
-  // }
+  const { userId: isUser } = auth();
+  if (!isUser) {
+    return errorResponse("user not authenticated", false, 500);
+  }
 
   const {
     userId,
@@ -63,9 +63,9 @@ export const POST = async (req: NextRequest) => {
   ) {
     return errorResponse("all fields are required", false, 400);
   }
-  // if (isUser !== userId) {
-  //   return errorResponse("you are not authorized for this request", false, 403);
-  // }
+  if (isUser !== userId) {
+    return errorResponse("you are not authorized for this request", false, 403);
+  }
   try {
     const existingCart = await db
       .select()
@@ -138,10 +138,10 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const PATCH = async (req: NextRequest) => {
-  // const { userId: isUser } = auth();
-  // if (!isUser) {
-  //   return errorResponse("user not authenticated", false, 500);
-  // }
+  const { userId: isUser } = auth();
+  if (!isUser) {
+    return errorResponse("user not authenticated", false, 500);
+  }
 
   const { reqType, cartId, userId } = await req.json();
 
@@ -149,9 +149,9 @@ export const PATCH = async (req: NextRequest) => {
     return errorResponse("all fields are required", false, 400);
   }
 
-  // if (isUser !== userId) {
-  //   return errorResponse("you are not authorized for this request", false, 403);
-  // }
+  if (isUser !== userId) {
+    return errorResponse("you are not authorized for this request", false, 403);
+  }
 
   try {
     const existingCart = await db
@@ -266,7 +266,12 @@ export const DELETE = async (req: NextRequest) => {
   try {
     const deletedCart = await db
       .delete(cartTable)
-      .where(eq(cartTable.id, cartId as unknown as number))
+      .where(
+        and(
+          eq(cartTable.id, cartId as unknown as number),
+          eq(cartTable.userId, userId)
+        )
+      )
       .returning();
     if (deletedCart.length === 0) {
       return errorResponse("cart not found", false, 404);

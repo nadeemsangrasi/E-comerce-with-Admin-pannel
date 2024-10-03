@@ -44,23 +44,16 @@ export const POST = async (req: NextRequest) => {
     price,
     salePrice,
     totalStock,
+    isArchive,
+    isFeatured,
   } = await req.json();
-  if (
-    !image ||
-    !title ||
-    !description ||
-    !category ||
-    !brand ||
-    !price ||
-    !totalStock
-  ) {
+  if (!title || !description || !category || !brand || !price || !totalStock) {
     return errorResponse("All fields are required", false, 500);
   }
   try {
     const product = await db
       .insert(productTable)
       .values({
-        image,
         title,
         description,
         category,
@@ -68,6 +61,8 @@ export const POST = async (req: NextRequest) => {
         price,
         salePrice,
         totalStock,
+        isArchive,
+        isFeatured,
       })
       .returning();
 
@@ -96,7 +91,6 @@ export const PATCH = async (req: NextRequest) => {
   }
   const {
     productId,
-    image,
     title,
     description,
     category,
@@ -104,6 +98,8 @@ export const PATCH = async (req: NextRequest) => {
     price,
     salePrice,
     totalStock,
+    isArchive,
+    isFeatured,
   } = await req.json();
 
   if (!productId || !title) {
@@ -113,7 +109,6 @@ export const PATCH = async (req: NextRequest) => {
     const updatedProduct = await db
       .update(productTable)
       .set({
-        image,
         title,
         description,
         category,
@@ -121,6 +116,8 @@ export const PATCH = async (req: NextRequest) => {
         price,
         salePrice,
         totalStock,
+        isArchive,
+        isFeatured,
       })
       .where(eq(productTable.id, productId))
       .returning();

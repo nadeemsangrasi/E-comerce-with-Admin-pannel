@@ -9,7 +9,7 @@ import { NextRequest } from "next/server";
 export const GET = async (req: NextRequest) => {
   const productId = req.nextUrl.searchParams.get("productId");
   if (!productId) {
-    errorResponse("product id is required", false, 200);
+    return errorResponse("product id is required", false, 200);
   }
 
   try {
@@ -19,24 +19,29 @@ export const GET = async (req: NextRequest) => {
       .where(eq(reviewTable.productId, productId as unknown as number));
 
     if (productReviews.length === 0) {
-      errorResponse("reviews not found", false, 404);
+      return errorResponse("reviews not found", false, 404);
     }
 
-    successResponse("reviews fetched successfully", true, 200);
+    return successResponse(
+      "reviews fetched successfully",
+      true,
+      200,
+      productReviews
+    );
   } catch (error) {
     const err = error as Error;
-    errorResponse(err.message, false, 500);
+    return errorResponse(err.message, false, 500);
   }
 };
 export const POST = async (req: NextRequest) => {
   const { userId: isUser } = auth();
   if (!isUser) {
-    errorResponse("user not authenticated", false, 500);
+    return errorResponse("user not authenticated", false, 500);
   }
 
   const { userId, productId, reviewMessage, reviewValue } = await req.json();
   if (!userId || !productId || !reviewMessage || !reviewValue) {
-    errorResponse("all fields are required", false, 400);
+    return errorResponse("all fields are required", false, 400);
   }
 
   try {
@@ -44,7 +49,11 @@ export const POST = async (req: NextRequest) => {
 
     const order = true;
     if (!order) {
-      errorResponse("you need to purchase product to review it.", false, 403);
+      return errorResponse(
+        "you need to purchase product to review it.",
+        false,
+        403
+      );
     }
 
     const isReviewed = await db
@@ -57,7 +66,7 @@ export const POST = async (req: NextRequest) => {
         )
       );
     if (isReviewed.length > 0) {
-      errorResponse("you already reviewed this product!.", false, 403);
+      return errorResponse("you already reviewed this product!.", false, 403);
     }
 
     const newReview = await db
@@ -70,7 +79,7 @@ export const POST = async (req: NextRequest) => {
       })
       .returning();
     if (newReview.length === 0) {
-      errorResponse("error adding new review", false, 500);
+      return errorResponse("error adding new review", false, 500);
     }
 
     const getProductReviews = await db
@@ -92,12 +101,12 @@ export const POST = async (req: NextRequest) => {
       .where(eq(productTable.id, productId))
       .returning();
     if (updateProduct.length === 0) {
-      errorResponse("error updating average product review", false, 400);
+      return errorResponse("error updating average product review", false, 400);
     }
 
-    successResponse("review added successfully", true, 200);
+    return successResponse("review added successfully", true, 200);
   } catch (error) {
     const err = error as Error;
-    errorResponse(err.message, false, 500);
+    return errorResponse(err.message, false, 500);
   }
 };
