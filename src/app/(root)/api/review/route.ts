@@ -1,5 +1,10 @@
 import { db } from "@/db";
-import { productTable, reviewTable } from "@/db/schema";
+import {
+  orderItemTable,
+  orderTable,
+  productTable,
+  reviewTable,
+} from "@/db/schema";
 import { errorResponse } from "@/utils/errorResponse";
 import { successResponse } from "@/utils/successResponse";
 import { auth } from "@clerk/nextjs/server";
@@ -45,10 +50,20 @@ export const POST = async (req: NextRequest) => {
   }
 
   try {
-    //todo check product is in orderd table or not
-
-    const order = true;
-    if (!order) {
+    const order = await db
+      .select()
+      .from(orderTable)
+      .where(eq(orderTable.userId, userId));
+    const isOrdered = await db
+      .select()
+      .from(orderItemTable)
+      .where(
+        and(
+          eq(orderItemTable.orderId, order[0].id),
+          eq(orderItemTable.productId, productId)
+        )
+      );
+    if (isOrdered.length === 0 || order[0].isPaid === false) {
       return errorResponse(
         "you need to purchase product to review it.",
         false,

@@ -1,6 +1,6 @@
 {
-  "id": "aa0d4faf-ccb7-45a4-8864-e796a5e82468",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "7993a8db-939e-4d38-80bf-912935e48486",
+  "prevId": "447f1935-eda9-445a-bd09-ae9ce3881e60",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -293,13 +293,13 @@
           "name": "phone",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "address": {
           "name": "address",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -445,7 +445,7 @@
         },
         "average_review": {
           "name": "average_review",
-          "type": "integer",
+          "type": "numeric(2, 1)",
           "primaryKey": false,
           "notNull": false
         },

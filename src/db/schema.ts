@@ -6,6 +6,7 @@ import {
   text,
   integer,
   boolean,
+  numeric,
 } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
@@ -32,7 +33,7 @@ export const productTable = pgTable("product", {
   price: integer("price").notNull(),
   salePrice: integer("sale_price"),
   totalStock: integer("total_stock").notNull(),
-  averageReview: integer("average_review"),
+  averageReview: numeric("average_review", { precision: 2, scale: 1 }),
   isArchive: boolean("is_archive").notNull().default(false),
   isFeatured: boolean("is_featured").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -41,12 +42,11 @@ export const productTable = pgTable("product", {
     .defaultNow()
     .$onUpdateFn(() => new Date()),
 });
-
 export const productImageTable = pgTable("product_image", {
   id: serial("id").primaryKey(),
   productId: integer("product_id")
     .notNull()
-    .references(() => productTable.id),
+    .references(() => productTable.id, { onDelete: "cascade" }), // Cascade when product is deleted
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
@@ -59,10 +59,10 @@ export const reviewTable = pgTable("review", {
   id: serial("id").primaryKey(),
   productId: integer("product_id")
     .notNull()
-    .references(() => productTable.id),
+    .references(() => productTable.id, { onDelete: "cascade" }), // Cascade when product is deleted
   userId: varchar("user_id", { length: 255 })
     .notNull()
-    .references(() => userTable.clerkId),
+    .references(() => userTable.clerkId, { onDelete: "cascade" }), // Cascade when user is deleted
   reviewValue: integer("review_value").notNull(),
   reviewMessage: text("review_message"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -96,10 +96,10 @@ export const cartTable = pgTable("cart", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id", { length: 255 })
     .notNull()
-    .references(() => userTable.clerkId, { onDelete: "cascade" }),
+    .references(() => userTable.clerkId, { onDelete: "cascade" }), // Cascade when user is deleted
   productId: integer("product_id")
     .notNull()
-    .references(() => productTable.id),
+    .references(() => productTable.id, { onDelete: "cascade" }), // Cascade when product is deleted
   productTitle: varchar("product_title", { length: 256 }).notNull(),
   productImage: varchar("product_image", { length: 256 }),
   productPrice: integer("product_price").notNull(),
@@ -119,8 +119,8 @@ export const orderTable = pgTable("order", {
     .notNull()
     .references(() => userTable.clerkId, { onDelete: "cascade" }),
   isPaid: boolean("is_paid").notNull().default(false),
-  phone: varchar("phone", { length: 255 }).notNull(),
-  address: varchar("address", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 255 }),
+  address: varchar("address", { length: 255 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -132,10 +132,10 @@ export const orderItemTable = pgTable("order_item", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id")
     .notNull()
-    .references(() => orderTable.id),
+    .references(() => orderTable.id, { onDelete: "cascade" }), // Cascade when order is deleted
   productId: integer("product_id")
     .notNull()
-    .references(() => productTable.id),
+    .references(() => productTable.id, { onDelete: "cascade" }), // Cascade when product is deleted
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
