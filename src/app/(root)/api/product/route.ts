@@ -9,7 +9,7 @@ export const GET = async () => {
   try {
     const products = await db.select().from(productTable);
     if (products.length === 0) {
-      errorResponse("no products found", false, 404);
+      return errorResponse("products not found", false, 404);
     }
 
     return successResponse(
@@ -20,16 +20,20 @@ export const GET = async () => {
     );
   } catch (error) {
     const err = error as Error;
-    errorResponse(err.message, false, 500);
+    return errorResponse(err.message, false, 500);
   }
 };
 export const POST = async (req: NextRequest) => {
   const { userId, role }: any = auth();
   if (!userId) {
-    errorResponse("user not authenticated", false, 500);
+    return errorResponse("user not authenticated", false, 500);
   }
   if (role !== "admin") {
-    errorResponse("you are not authorize for this request", false, 200);
+    return errorResponse(
+      "only admin is authorize for this request",
+      false,
+      403
+    );
   }
   const {
     image,
@@ -50,7 +54,7 @@ export const POST = async (req: NextRequest) => {
     !price ||
     !totalStock
   ) {
-    errorResponse("All fields are required", false, 500);
+    return errorResponse("All fields are required", false, 500);
   }
   try {
     const product = await db
@@ -68,23 +72,27 @@ export const POST = async (req: NextRequest) => {
       .returning();
 
     if (product.length === 0) {
-      errorResponse("products not found", false, 404);
+      return errorResponse("products not found", false, 404);
     }
 
     return successResponse("product added successfully", true, 200);
   } catch (error) {
     const err = error as Error;
-    errorResponse(err.message, false, 500);
+    return errorResponse(err.message, false, 500);
   }
 };
 
 export const PATCH = async (req: NextRequest) => {
   const { userId, role }: any = auth();
   if (!userId) {
-    errorResponse("user not authenticated", false, 500);
+    return errorResponse("user not authenticated", false, 500);
   }
   if (role !== "admin") {
-    errorResponse("you are not authorize for this request", false, 200);
+    return errorResponse(
+      "only admin is authorize for this request",
+      false,
+      200
+    );
   }
   const {
     productId,
@@ -99,7 +107,7 @@ export const PATCH = async (req: NextRequest) => {
   } = await req.json();
 
   if (!productId || !title) {
-    errorResponse("Product id and title is required ", false, 500);
+    return errorResponse("Product id and title is required ", false, 500);
   }
   try {
     const updatedProduct = await db
@@ -117,27 +125,31 @@ export const PATCH = async (req: NextRequest) => {
       .where(eq(productTable.id, productId))
       .returning();
     if (updatedProduct.length === 0) {
-      errorResponse("product not found", false, 404);
+      return errorResponse("product not found", false, 404);
     }
     return successResponse("Product updated successfully", true, 200);
   } catch (error) {
     const err = error as Error;
-    errorResponse(err.message, false, 500);
+    return errorResponse(err.message, false, 500);
   }
 };
 
 export const DELETE = async (req: NextRequest) => {
   const { userId, role }: any = auth();
   if (!userId) {
-    errorResponse("user not authenticated", false, 500);
+    return errorResponse("user not authenticated", false, 500);
   }
   if (role !== "admin") {
-    errorResponse("you are not authorize for this request", false, 200);
+    return errorResponse(
+      "only admin is authorize for this request",
+      false,
+      200
+    );
   }
 
   const productId = req.nextUrl.searchParams.get("productId");
   if (!productId) {
-    errorResponse("productId is required", false, 500);
+    return errorResponse("productId is required", false, 500);
   }
   try {
     const deletedProduct = await db
@@ -146,12 +158,12 @@ export const DELETE = async (req: NextRequest) => {
       .returning();
 
     if (deletedProduct.length === 0) {
-      errorResponse("product not found", false, 404);
+      return errorResponse("product not found", false, 404);
     } else {
       return successResponse("product deleted successfully", true, 200);
     }
   } catch (error) {
     const err = error as Error;
-    errorResponse(err.message, false, 500);
+    return errorResponse(err.message, false, 500);
   }
 };
