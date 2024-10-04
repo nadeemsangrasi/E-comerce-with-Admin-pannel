@@ -1,5 +1,5 @@
 {
-  "id": "aa0d4faf-ccb7-45a4-8864-e796a5e82468",
+  "id": "a3492321-7bab-4781-ab9a-826f36e40e14",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -219,6 +219,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -293,13 +299,13 @@
           "name": "phone",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "address": {
           "name": "address",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -445,7 +451,7 @@
         },
         "average_review": {
           "name": "average_review",
-          "type": "integer",
+          "type": "numeric(2, 1)",
           "primaryKey": false,
           "notNull": false
         },

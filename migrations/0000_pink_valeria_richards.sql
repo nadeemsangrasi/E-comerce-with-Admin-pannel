@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS "order_item" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"order_id" integer NOT NULL,
 	"product_id" integer NOT NULL,
+	"quantity" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -40,8 +41,8 @@ CREATE TABLE IF NOT EXISTS "order" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" varchar(255) NOT NULL,
 	"is_paid" boolean DEFAULT false NOT NULL,
-	"phone" varchar(255) NOT NULL,
-	"address" varchar(255) NOT NULL,
+	"phone" varchar(255),
+	"address" varchar(255),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -63,7 +64,7 @@ CREATE TABLE IF NOT EXISTS "product" (
 	"price" integer NOT NULL,
 	"sale_price" integer,
 	"total_stock" integer NOT NULL,
-	"average_review" integer,
+	"average_review" numeric(2, 1),
 	"is_archive" boolean DEFAULT false NOT NULL,
 	"is_featured" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,

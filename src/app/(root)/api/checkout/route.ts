@@ -48,38 +48,33 @@ export const POST = async (req: NextRequest) => {
         quantity: 1,
         price_data: {
           currency: "usd",
-          cart_data: {
-            name: cart?.title,
+          product_data: {
+            name: cart?.productTitle,
           },
-          unit_amount: cart?.salePrice
-            ? cart?.salePrice * 100
-            : cart?.price * 100,
+          unit_amount: cart?.productSalePrice
+            ? cart?.productSalePrice * 100
+            : cart?.productPrice * 100,
         },
       }));
 
-    // Insert order into database
     const order = await db
       .insert(orderTable)
       .values({
-        userId: "1",
+        userId: "clerk_4",
         isPaid: false,
       })
       .returning();
 
-    // Insert order items
     await Promise.all(
       carts.map(async (cart: any) => {
-        await db
-          .insert(orderItemTable)
-          .values({
-            orderId: order[0]?.id,
-            productId: cart?.productId,
-            quantity: cart?.quantity,
-          });
+        await db.insert(orderItemTable).values({
+          orderId: order[0]?.id,
+          productId: cart?.productId,
+          quantity: cart?.quantity,
+        });
       })
     );
 
-    // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       line_items,
       mode: "payment",
@@ -90,7 +85,7 @@ export const POST = async (req: NextRequest) => {
       success_url: `${process.env.public_domain}/cart?success=1`,
       cancel_url: `${process.env.public_domain}/cart?cancel=1`,
       metadata: {
-        order_id: order[0]?.id,
+        orderId: order[0]?.id,
       },
     });
 

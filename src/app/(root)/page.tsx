@@ -7,19 +7,16 @@ export default function Home() {
   const { user, loading } = useUser();
   const [items, setItems] = useState([
     {
-      id: 1,
+      id: 5,
     },
     {
-      id: 2,
-    },
-    {
-      id: 3,
+      id: 6,
     },
   ]);
 
   const handleCheckOut = async () => {
     const response = await axios.post("/api/checkout", {
-      productIds: items.map((item: any) => item.id),
+      cartIds: items.map((item: any) => item.id),
     });
 
     window.location = response.data.url;
