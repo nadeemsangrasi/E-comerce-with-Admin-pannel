@@ -1,4 +1,5 @@
 "use client";
+import { ModeToggle } from "@/components/shared/ModeToggle";
 import { ClerkLoading, ClerkLoaded, useUser, UserButton } from "@clerk/nextjs";
 import axios from "axios";
 import Link from "next/link";
@@ -50,6 +51,7 @@ export default function Home() {
             </div>
           )}
           <button onClick={handleCheckOut}>check out</button>
+          <ModeToggle />
         </div>
       </ClerkLoaded>
     </div>

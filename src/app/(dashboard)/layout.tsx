@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import { ThemeProvider } from "@/contexts/theme-provider/theme-provider";
 
 const geistSans = localFont({
@@ -20,7 +19,6 @@ export const metadata: Metadata = {
   title: "QuickCart",
   description: "A rich ecommerce shopping mart",
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +36,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <div>
+              <div>side bar</div>
+              {children}
+            </div>
           </ThemeProvider>
         </body>
       </html>
