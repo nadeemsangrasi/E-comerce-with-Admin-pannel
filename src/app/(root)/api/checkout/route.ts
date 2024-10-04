@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { orderItemTable, orderTable, productTable } from "@/db/schema";
+import { orderItemTable, orderTable, cartTable } from "@/db/schema";
 import { stripe } from "@/lib/stripe";
 import { errorResponse } from "@/utils/errorResponse";
 import { auth } from "@clerk/nextjs/server";
@@ -24,36 +24,36 @@ export const POST = async (req: NextRequest) => {
   //   return errorResponse("user not authenticated", false, 500);
   // }
 
-  const { productIds } = await req.json();
-  if (!productIds || productIds.length === 0) {
+  const { cartIds } = await req.json();
+  if (!cartIds || cartIds.length === 0) {
     return errorResponse("all fields are required", false, 400);
   }
 
   try {
-    // Fetch products in parallel
-    const products = await Promise.all(
-      productIds.map(async (id: any) => {
-        const product = await db
+    // Fetch carts in parallel
+    const carts = await Promise.all(
+      cartIds.map(async (id: any) => {
+        const cart = await db
           .select()
-          .from(productTable)
-          .where(eq(productTable.id, id));
+          .from(cartTable)
+          .where(eq(cartTable.id, id));
 
-        return product[0];
+        return cart[0];
       })
     );
 
     // Prepare line items for Stripe Checkout
     const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] =
-      products.map((product: any) => ({
+      carts.map((cart: any) => ({
         quantity: 1,
         price_data: {
           currency: "usd",
-          product_data: {
-            name: product?.title,
+          cart_data: {
+            name: cart?.title,
           },
-          unit_amount: product?.salePrice
-            ? product?.salePrice * 100
-            : product?.price * 100,
+          unit_amount: cart?.salePrice
+            ? cart?.salePrice * 100
+            : cart?.price * 100,
         },
       }));
 
@@ -68,10 +68,14 @@ export const POST = async (req: NextRequest) => {
 
     // Insert order items
     await Promise.all(
-      products.map(async (product: any) => {
+      carts.map(async (cart: any) => {
         await db
           .insert(orderItemTable)
-          .values({ orderId: order[0]?.id, productId: product?.id });
+          .values({
+            orderId: order[0]?.id,
+            productId: cart?.productId,
+            quantity: cart?.quantity,
+          });
       })
     );
 

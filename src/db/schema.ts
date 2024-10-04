@@ -136,6 +136,7 @@ export const orderItemTable = pgTable("order_item", {
   productId: integer("product_id")
     .notNull()
     .references(() => productTable.id, { onDelete: "cascade" }), // Cascade when product is deleted
+  quantity: integer("quantity").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
