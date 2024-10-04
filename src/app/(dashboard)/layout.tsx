@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
-import { ThemeProvider } from "@/contexts/theme-provider/ThemeProvider";
+import { ThemeProvider } from "@/contexts/themeProvider/ThemeProvider";
 import ClerkProviderWithTheme from "@/contexts/clerkProviderWithTheme/ClerkProviderWithTheme";
+import { cn } from "@/lib/utils";
+import SideNavbar from "@/components/dashboard/SideNavbar";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -28,7 +29,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={cn(
+          "min-h-screen w-full bg-white text-black flex antialiased",
+          geistSans.variable,
+          geistMono.variable,
+          {
+            "debug-screens": process.env.NODE_ENV === "development",
+          }
+        )}
       >
         <ThemeProvider
           attribute="class"
@@ -37,10 +45,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ClerkProviderWithTheme>
-            <div>
-              <div>side bar</div>
-              {children}
-            </div>
+            {/* side bar */}
+            <SideNavbar />
+            {/* content */}
+            {children}
           </ClerkProviderWithTheme>
         </ThemeProvider>
       </body>
