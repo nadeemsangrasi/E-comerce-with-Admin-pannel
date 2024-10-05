@@ -1,4 +1,5 @@
 import AddNewButton from "@/components/dashboard/AddNewButton";
+import CategoryBrandCard from "@/components/dashboard/CategoryBrandCard";
 import DashboardPagesHeadings from "@/components/dashboard/DashboardPagesHeadings";
 import DashboardPagesWrapper from "@/components/dashboard/DashboardPagesWrapper";
 import React from "react";
@@ -11,6 +12,13 @@ const CategoriesPage = () => {
           <DashboardPagesHeadings primaryText="Categories" items={12} />
         </div>
         <AddNewButton btnType="category" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-5 ">
+        <CategoryBrandCard cardType="s" date="a" title="a" />
+        <CategoryBrandCard cardType="s" date="a" title="a" />
+        <CategoryBrandCard cardType="s" date="a" title="a" />
+        <CategoryBrandCard cardType="s" date="a" title="a" />
+        <CategoryBrandCard cardType="s" date="a" title="a" />
       </div>
     </DashboardPagesWrapper>
   );

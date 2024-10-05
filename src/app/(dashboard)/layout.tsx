@@ -28,30 +28,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={cn(
-          "min-h-screen w-full bg-white text-black flex antialiased",
-          geistSans.variable,
-          geistMono.variable,
-          {
-            "debug-screens": process.env.NODE_ENV === "development",
-          }
-        )}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+        <body
+          className={cn(
+            "min-h-screen w-full bg-white text-black dark:bg-black dark:text-white flex antialiased",
+            geistSans.variable,
+            geistMono.variable,
+            {
+              "debug-screens": process.env.NODE_ENV === "development",
+            }
+          )}
         >
           <ClerkProviderWithTheme>
-            {/* side bar */}
             <SideNavbar />
-            {/* content */}
             {children}
           </ClerkProviderWithTheme>
-        </ThemeProvider>
-      </body>
+        </body>
+      </ThemeProvider>
     </html>
   );
 }

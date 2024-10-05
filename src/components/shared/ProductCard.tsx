@@ -2,13 +2,13 @@ import React from "react";
 import ProductButton from "./ProductButton";
 import Image from "next/image";
 import img from "@/assets/home-4.jpg";
-import { Edit, ExpandIcon, ShoppingBag, TrashIcon } from "lucide-react";
+import { ExpandIcon, ShoppingBag } from "lucide-react";
 
 const ProductCard = () => {
   const role = "admin";
 
   return (
-    <div className="w-[280px] border rounded-lg p-3 mx-auto">
+    <div className="w-[280px] border dark:border-gray-300 rounded-lg p-3 mx-auto ">
       {/* Image Container */}
       <div className="overflow-hidden relative group">
         <Image
@@ -35,8 +35,10 @@ const ProductCard = () => {
           </span>
         </div>
         <div className="flex justify-between items-center mb-1">
-          <p className="text-gray-600 font-medium">category</p>
-          <p className="text-gray-600 font-medium">brand</p>
+          <p className="text-gray-600 dark:text-gray-400 font-medium">
+            category
+          </p>
+          <p className="text-gray-600 dark:text-gray-400 font-medium">brand</p>
         </div>
         <div className="flex justify-between">
           <p className="line-through text-lg font-medium text-red-600">$220</p>

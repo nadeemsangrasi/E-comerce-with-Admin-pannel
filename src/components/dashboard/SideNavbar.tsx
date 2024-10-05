@@ -18,6 +18,8 @@ import {
 import { Button } from "../ui/button";
 
 import { useWindowWidth } from "@react-hook/window-size";
+import { UserButton } from "@clerk/nextjs";
+import { ModeToggle } from "../shared/ModeToggle";
 
 export default function SideNavbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -31,6 +33,12 @@ export default function SideNavbar() {
 
   return (
     <div className="relative min-w-[80px]  border-r px-3  pb-10 pt-24 z-50">
+      <div className="flex  items-center justify-between  flex-wrap  pl-4">
+        <span className={isCollapsed ? "pl-1" : "mt-2"}>
+          <UserButton />
+        </span>
+        <ModeToggle />
+      </div>
       {!mobileWidth && (
         <div className="absolute right-[-20px] top-7">
           <Button

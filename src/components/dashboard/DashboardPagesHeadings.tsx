@@ -15,7 +15,7 @@ const DashboardPagesHeadings = ({
       <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
         {primaryText}({items})
       </h1>
-      <p className="text-gray-500 text-base font-medium">
+      <p className="text-gray-500 text-base font-medium dark:text-gray-400 ">
         manage your store {primaryText.toLowerCase()}
       </p>
     </>
