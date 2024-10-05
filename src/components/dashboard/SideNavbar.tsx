@@ -46,8 +46,8 @@ export default function SideNavbar() {
         isCollapsed={mobileWidth ? true : isCollapsed}
         links={[
           {
-            title: "Overview",
-            href: "/overview",
+            title: "Dashboard",
+            href: "/dashboard",
             icon: LayoutDashboard,
             variant: "default",
           },
