@@ -2,9 +2,13 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const AddNewButton = ({ btnType }: { btnType: string }) => {
-  const handleAddProduct = () => {};
+  const router = useRouter();
+  const handleAddProduct = () => {
+    router.push("/new-product");
+  };
 
   const handleAddCategory = () => {};
 
@@ -13,11 +17,11 @@ const AddNewButton = ({ btnType }: { btnType: string }) => {
     <Button
       onClick={() =>
         btnType == "product"
-          ? handleAddProduct
+          ? handleAddProduct()
           : btnType == "category"
-          ? handleAddCategory
+          ? handleAddCategory()
           : btnType == "brand"
-          ? handleAddBrand
+          ? handleAddBrand()
           : ""
       }
     >

@@ -52,6 +52,7 @@ export default function Home() {
           )}
           <button onClick={handleCheckOut}>check out</button>
           <ModeToggle />
+          <Link href="/dashboard">dashboard</Link>
         </div>
       </ClerkLoaded>
     </div>
