@@ -8,6 +8,6 @@ export const createProductSchema = z.object({
   price: z.number().min(1, "Price is required"),
   salePrice: z.number().optional(),
   totalStock: z.number().min(1, "Total Stock is required"),
-  isArchive: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
 });

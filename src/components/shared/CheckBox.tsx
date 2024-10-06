@@ -1,6 +1,4 @@
-"use client";
-
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox as ShadCheckbox } from "../ui/checkbox"; // Assuming you're using this custom Checkbox
 
 export function CheckBox({
   label,
@@ -9,13 +7,17 @@ export function CheckBox({
 }: {
   label: string;
   value: boolean;
-  setValue: React.Dispatch<React.SetStateAction<boolean>>;
+  setValue: (value: boolean) => void;
 }) {
   return (
     <div className="flex items-center space-x-2">
-      <Checkbox id="terms" checked={value} onChange={() => setValue(!value)} />
+      <ShadCheckbox
+        id={label}
+        checked={value}
+        onCheckedChange={() => setValue(!value)}
+      />
       <label
-        htmlFor="terms"
+        htmlFor={label}
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
       >
         {label}
