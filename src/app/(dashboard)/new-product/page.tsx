@@ -1,7 +1,7 @@
 "use client";
 import DashboardPagesWrapper from "@/components/dashboard/DashboardPagesWrapper";
 import { Trash, Upload } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import img from "@/assets/home-4.jpg";
 import Image from "next/image";
 import { useForm, FormProvider } from "react-hook-form"; // Import FormProvider
@@ -22,6 +22,7 @@ import { SelectItem } from "@/components/shared/SelectItem";
 import { brand, category } from "@/data/data";
 import { CheckBox } from "@/components/shared/CheckBox";
 import { Button } from "@/components/ui/button";
+import UploadImage from "@/components/shared/UploadImage";
 
 type CreateProductFormData = z.infer<typeof createProductSchema>;
 
@@ -45,6 +46,7 @@ const NewProduct = () => {
     console.log(data);
     form.reset();
   };
+  const [image, setImage] = useState<string[]>([]);
 
   return (
     <DashboardPagesWrapper>
@@ -58,39 +60,12 @@ const NewProduct = () => {
           </h4>
           <hr />
         </div>
-
-        {/* Image Upload Section */}
-        <div className="space-y-2">
-          <h4 className=" font-semibold text-lg">Images</h4>
-          <div className="flex gap-2">
-            {[...Array(3)].map((_, index) => (
-              <span key={index} className="relative cursor-pointer">
-                <Image src={img} alt="img" className="w-[240px] rounded-md" />
-                <Trash
-                  className="text-black font-semibold absolute top-4 right-5"
-                  fill="red"
-                />
-              </span>
-            ))}
-          </div>
-          <div className="pt-3">
-            <form>
-              <label
-                htmlFor="file"
-                className="cursor-pointer flex items-center border-2 border-dashed p-2 rounded-lg w-fit bg-gray-300 text-black"
-              >
-                <Upload size={20} strokeWidth={3} className="inline mx-2" />
-                <span className="text-xl font-bold">Upload Image</span>
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                id="file"
-                className="hidden"
-              />
-            </form>
-          </div>
-        </div>
+        {/* upload image  */}
+        <UploadImage
+          onChange={setImage}
+          onRemove={(url) => setImage(image.filter((i) => i !== url))}
+          value={image}
+        />
 
         {/* Product Form Section */}
         <div className="pt-3 w-3/5">
