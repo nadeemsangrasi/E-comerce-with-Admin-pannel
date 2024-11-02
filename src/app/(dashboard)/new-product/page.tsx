@@ -1,9 +1,6 @@
 "use client";
 import DashboardPagesWrapper from "@/components/dashboard/DashboardPagesWrapper";
-import { Trash, Upload } from "lucide-react";
-import React, { useState } from "react";
-import img from "@/assets/home-4.jpg";
-import Image from "next/image";
+import React, { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form"; // Import FormProvider
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -23,10 +20,26 @@ import { brand, category } from "@/data/data";
 import { CheckBox } from "@/components/shared/CheckBox";
 import { Button } from "@/components/ui/button";
 import UploadImage from "@/components/shared/UploadImage";
+import toast from "react-hot-toast";
+import axios, { AxiosError } from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useProductContext } from "@/contexts/productsStore/ProductStore";
+import { IProduct } from "@/types/types";
 
 type CreateProductFormData = z.infer<typeof createProductSchema>;
 
 const NewProduct = () => {
+  const searchParams = useSearchParams();
+  const productId = searchParams.get("productId");
+  const { products, setProducts } = useProductContext();
+  const [images, setImages] = useState<string[]>([]);
+  const [isSubmiting, setIsSubmiting] = useState(false);
+  const router = useRouter();
+
+  const product: IProduct | undefined = products.find(
+    (p) => parseInt(p.id) === parseInt(productId || "")
+  );
+
   const form = useForm<CreateProductFormData>({
     resolver: zodResolver(createProductSchema),
     defaultValues: {
@@ -34,44 +47,92 @@ const NewProduct = () => {
       description: "",
       category: "",
       brand: "",
-      price: undefined,
-      salePrice: undefined,
-      totalStock: undefined,
+      price: 99.9,
+      salePrice: 0,
+      totalStock: 1,
       isArchived: false,
       isFeatured: false,
     },
   });
+  useEffect(() => {
+    if (product) {
+      form.reset({
+        title: product.title,
+        description: product.description,
+        price: Number(product.price),
+        salePrice: Number(product.salePrice),
+        totalStock: Number(product.totalStock),
+        isArchived: product.isArchived,
+        isFeatured: product.isFeatured,
+        category: product.category,
+        brand: product.brand,
+      });
 
-  const onCreateProductSubmit = (data: CreateProductFormData) => {
-    console.log(data);
-    form.reset();
+      setImages(product.images.map((img) => img.imageUrl));
+    }
+  }, [product]);
+
+  const onCreateProductSubmit = async (data: CreateProductFormData) => {
+    if (images.length > 0) {
+      setIsSubmiting(true);
+      try {
+        const res = productId
+          ? await axios.patch("/api/product", data)
+          : await axios.post("/api/product", data);
+
+        if (res.status !== 200) {
+          console.error(res.data.message);
+          toast.error(res.data.message);
+        }
+
+        const imgData = images.map((img) => ({
+          productId: res.data.data.id,
+          imageUrl: img,
+        }));
+
+        const imgRes = await axios.post("/api/product-images/upload", {
+          images: imgData,
+        });
+
+        if (imgRes.status !== 200) {
+          console.error(imgRes.data.message);
+          toast.error(imgRes.data.message);
+        }
+
+        toast.success(res.data.message);
+        router.push("/products");
+      } catch (error) {
+        const AxiosError = error as AxiosError;
+        console.error(AxiosError.message);
+        toast.error(AxiosError.message);
+      } finally {
+        setIsSubmiting(false);
+        setImages([]);
+        form.reset();
+      }
+    } else {
+      toast.error("Please upload image");
+    }
   };
-  const [image, setImage] = useState<string[]>([]);
 
   return (
     <DashboardPagesWrapper>
       <div className="space-y-4">
         <div>
           <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">
-            Create Product
+            {productId ? "Edit Product" : "Create Product"}
           </h1>
           <h4 className="text-gray-500 text-base font-medium dark:text-gray-400 mb-1">
-            Fill out the form below to create a new product
+            {productId
+              ? "Update the form below to edit the product"
+              : "Fill out the form below to create a new product"}
           </h4>
           <hr />
         </div>
-        {/* upload image  */}
-        <UploadImage
-          onChange={setImage}
-          onRemove={(url) => setImage(image.filter((i) => i !== url))}
-          value={image}
-        />
-
-        {/* Product Form Section */}
+        <UploadImage onChange={setImages} value={images} />
         <div className="pt-3 w-3/5">
           <FormProvider {...form}>
             {" "}
-            {/* Wrap with FormProvider */}
             <form onSubmit={form.handleSubmit(onCreateProductSubmit)}>
               {/* Title and Total Stock Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -260,7 +321,13 @@ const NewProduct = () => {
               </div>
 
               <Button type="submit" className="w-full mt-5">
-                Create
+                {isSubmiting
+                  ? productId
+                    ? "Updating..."
+                    : "Creating..."
+                  : productId
+                  ? "Update"
+                  : "Create"}
               </Button>
             </form>
           </FormProvider>{" "}

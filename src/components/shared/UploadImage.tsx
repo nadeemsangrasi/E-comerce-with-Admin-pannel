@@ -4,11 +4,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { CldUploadWidget } from "next-cloudinary";
-
 const UploadImage: React.FC<IUploadImageProps> = ({
   onChange,
-  value,
-  onRemove,
+  value = [],
   disabled,
 }) => {
   const [mounted, setMounted] = useState(false);
@@ -16,14 +14,6 @@ const UploadImage: React.FC<IUploadImageProps> = ({
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const handleUpload = (res: any) => {
-    const newImageUrl = res.info.secure_url;
-    if (newImageUrl) {
-      // Use functional setState to ensure the latest state is updated
-      onChange((prevImages: string[]) => [...prevImages, newImageUrl]);
-    }
-  };
 
   if (!mounted) {
     return null;
@@ -42,8 +32,12 @@ const UploadImage: React.FC<IUploadImageProps> = ({
               width={1000}
               height={1000}
             />
-            <Button variant={"destructive"} onClick={() => onRemove(url)}>
-              <Trash className="font-semibold absolute top-4 right-5 h-4 w-4" />
+            <Button
+              variant={"destructive"}
+              onClick={() => onChange(value.filter((u) => u !== url))}
+              className="absolute top-4 right-5 p-2"
+            >
+              <Trash className="font-semibold" size={25} />
             </Button>
           </span>
         ))}
@@ -51,10 +45,9 @@ const UploadImage: React.FC<IUploadImageProps> = ({
       <div className="pt-3">
         <CldUploadWidget
           uploadPreset="wjwwstzo"
-          onSuccess={(result, { widget }) => {
-            const newImageUrl = result.info.secure_url;
+          onSuccess={(result) => {
+            const newImageUrl = result.info.secure_url as string;
             if (newImageUrl) {
-              // Use functional setState to ensure the latest state is updated
               onChange((prevImages: string[]) => [...prevImages, newImageUrl]);
             }
           }}
@@ -68,6 +61,7 @@ const UploadImage: React.FC<IUploadImageProps> = ({
               type="button"
               onClick={() => open()}
               variant="secondary"
+              className="flex items-center gap-2"
             >
               <Upload className="font-semibold h-4 w-4" /> Upload an image
             </Button>

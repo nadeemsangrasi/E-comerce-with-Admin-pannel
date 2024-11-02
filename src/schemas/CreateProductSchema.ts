@@ -10,5 +10,4 @@ export const createProductSchema = z.object({
   totalStock: z.number().min(1, "Total Stock is required"),
   isArchived: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
-  images: z.array(z.string()).optional(),
 });

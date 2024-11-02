@@ -5,7 +5,8 @@ import { ThemeProvider } from "@/contexts/themeProvider/ThemeProvider";
 import ClerkProviderWithTheme from "@/contexts/clerkProviderWithTheme/ClerkProviderWithTheme";
 import { cn } from "@/lib/utils";
 import SideNavbar from "@/components/dashboard/SideNavbar";
-
+import { Toaster } from "react-hot-toast";
+import ProductStore from "@/contexts/productsStore/ProductStore";
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -45,8 +46,11 @@ export default function RootLayout({
           )}
         >
           <ClerkProviderWithTheme>
-            <SideNavbar />
-            {children}
+            <ProductStore>
+              <SideNavbar />
+              {children}
+              <Toaster />
+            </ProductStore>
           </ClerkProviderWithTheme>
         </body>
       </ThemeProvider>

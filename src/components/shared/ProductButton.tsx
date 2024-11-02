@@ -3,14 +3,18 @@ import { Button } from "../ui/button";
 
 const ProductButton = ({
   label,
-  btnType,
   className,
+  onClick,
 }: {
   label: string;
-  btnType: string;
   className?: string;
+  onClick: () => void;
 }) => {
-  return <Button className={"" + className}>{label}</Button>;
+  return (
+    <Button className={"" + className} onClick={onClick}>
+      {label}
+    </Button>
+  );
 };
 
 export default ProductButton;

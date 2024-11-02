@@ -1,19 +1,49 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import ProductButton from "./ProductButton";
 import Image from "next/image";
-import img from "@/assets/home-4.jpg";
 import { ExpandIcon, ShoppingBag } from "lucide-react";
+import { IProduct } from "@/types/types";
+import axios, { AxiosError } from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useProductContext } from "@/contexts/productsStore/ProductStore";
 
-const ProductCard = () => {
+const ProductCard = ({ product }: { product: IProduct }) => {
+  const { products, setProducts } = useProductContext();
+
+  const router = useRouter();
+
   const role = "admin";
-
+  const handleDeleteProduct = async () => {
+    try {
+      const res = await axios.delete("/api/product?productId=" + product.id);
+      if (res.status !== 200) {
+        console.error(res.data.message);
+        toast.error(res.data.message);
+        return;
+      }
+      setProducts(products.filter((p: IProduct) => p.id !== product.id));
+      toast.success(res.data.message);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error(axiosError.message);
+      toast.error(axiosError.message);
+    }
+  };
+  const handleEditProduct = () => {
+    router.push("/new-product?productId=" + product.id);
+  };
+  const handleAddToCart = () => {};
   return (
     <div className="w-[280px] border dark:border-gray-300 rounded-lg p-3 mx-auto ">
       {/* Image Container */}
       <div className="overflow-hidden relative group">
         <Image
-          src={img}
+          src={product.images[0]?.imageUrl || ""}
           alt="product image"
+          width={1000}
+          height={1000}
           className="w-full hover:scale-110 duration-150 hover:duration-150 "
         />
         {/* ExpandIcon (hidden by default, shown on hover) */}
@@ -27,22 +57,29 @@ const ProductCard = () => {
       <div>
         <div className="flex justify-between items-center">
           <h1 className="mt-2 text-2xl tracking-tight font-semibold">
-            Product title
+            {product?.title}
           </h1>
           <span className="flex items-center gap-1">
             <ShoppingBag size={16} />
-            12
+
+            {product?.totalStock}
           </span>
         </div>
         <div className="flex justify-between items-center mb-1">
           <p className="text-gray-600 dark:text-gray-400 font-medium">
-            category
+            {product?.category}
           </p>
-          <p className="text-gray-600 dark:text-gray-400 font-medium">brand</p>
+          <p className="text-gray-600 dark:text-gray-400 font-medium">
+            {product.brand}
+          </p>
         </div>
         <div className="flex justify-between">
-          <p className="line-through text-lg font-medium text-red-600">$220</p>
-          <p className="text-lg font-medium text-green-600">$120</p>
+          <p className="line-through text-lg font-medium text-red-600">
+            {product.price}
+          </p>
+          <p className="text-lg font-medium text-green-600">
+            {product.salePrice || ""}
+          </p>
         </div>
       </div>
 
@@ -50,13 +87,21 @@ const ProductCard = () => {
       <div className="flex justify-between mt-2 gap-4">
         {role === "admin" ? (
           <>
-            <ProductButton label="Delete" btnType="delete" className="w-full" />
-            <ProductButton label="Edit" btnType="edit" className="w-full" />
+            <ProductButton
+              label="Delete"
+              onClick={handleDeleteProduct}
+              className="w-full"
+            />
+            <ProductButton
+              label="Edit"
+              onClick={handleEditProduct}
+              className="w-full"
+            />
           </>
         ) : (
           <ProductButton
             label="Add to cart"
-            btnType="addToCart"
+            onClick={handleAddToCart}
             className="w-full"
           />
         )}
