@@ -1,8 +1,9 @@
 import { db } from "@/db";
 import { categoryTable } from "@/db/schema";
 import { errorResponse } from "@/utils/errorResponse";
+import { isAdmin } from "@/utils/isAdmin";
 import { successResponse } from "@/utils/successResponse";
-import { auth } from "@clerk/nextjs/server";
+
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
@@ -26,15 +27,9 @@ export const GET = async () => {
 };
 
 export const POST = async (req: NextRequest) => {
-  const { userId, role }: any = auth();
-  if (!userId) {
-    return errorResponse("user not authenticated", false, 500);
-  }
-  if (role !== "admin") {
-    return errorResponse("you are not authorize for this request", false, 200);
-  }
-  const { categoryName } = await req.json();
-  if (!categoryName) {
+  isAdmin();
+  const { name } = await req.json();
+  if (!name) {
     return errorResponse("all fields are required", false, 400);
   }
 
@@ -42,29 +37,28 @@ export const POST = async (req: NextRequest) => {
     const newCategory = await db
       .insert(categoryTable)
       .values({
-        categoryName,
+        name,
       })
       .returning();
     if (newCategory.length === 0) {
       return errorResponse("Error adding category", false, 500);
     }
 
-    return successResponse("category added successfully", true, 200);
+    return successResponse(
+      "category added successfully",
+      true,
+      200,
+      newCategory
+    );
   } catch (error) {
     const err = error as Error;
     return errorResponse(err.message, false, 500);
   }
 };
 export const PATCH = async (req: NextRequest) => {
-  const { userId, role }: any = auth();
-  if (!userId) {
-    return errorResponse("user not authenticated", false, 500);
-  }
-  if (role !== "admin") {
-    return errorResponse("you are not authorize for this request", false, 200);
-  }
-  const { categoryId, categoryName } = await req.json();
-  if (!categoryName || !categoryId) {
+  isAdmin();
+  const { categoryId, name } = await req.json();
+  if (!name || !categoryId) {
     return errorResponse("all fields are required", false, 400);
   }
 
@@ -72,7 +66,7 @@ export const PATCH = async (req: NextRequest) => {
     const updatedCategory = await db
       .update(categoryTable)
       .set({
-        categoryName,
+        name,
       })
       .where(eq(categoryTable.id, categoryId))
       .returning();
@@ -88,13 +82,7 @@ export const PATCH = async (req: NextRequest) => {
 };
 
 export const DELETE = async (req: NextRequest) => {
-  const { userId, role }: any = auth();
-  if (!userId) {
-    return errorResponse("user not authenticated", false, 500);
-  }
-  if (role !== "admin") {
-    return errorResponse("you are not authorize for this request", false, 200);
-  }
+  isAdmin();
 
   const categoryId = req.nextUrl.searchParams.get("categoryId");
   if (!categoryId) {

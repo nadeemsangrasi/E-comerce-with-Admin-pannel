@@ -59,10 +59,10 @@ export const reviewTable = pgTable("review", {
   id: serial("id").primaryKey(),
   productId: integer("product_id")
     .notNull()
-    .references(() => productTable.id, { onDelete: "cascade" }), // Cascade when product is deleted
+    .references(() => productTable.id, { onDelete: "cascade" }),
   userId: varchar("user_id", { length: 255 })
     .notNull()
-    .references(() => userTable.clerkId, { onDelete: "cascade" }), // Cascade when user is deleted
+    .references(() => userTable.clerkId, { onDelete: "cascade" }),
   reviewValue: integer("review_value").notNull(),
   reviewMessage: text("review_message"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -74,7 +74,7 @@ export const reviewTable = pgTable("review", {
 
 export const categoryTable = pgTable("category", {
   id: serial("id").primaryKey(),
-  categoryName: varchar("category_name", { length: 255 }).notNull().unique(),
+  name: varchar("category_name", { length: 255 }).notNull().unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -84,7 +84,7 @@ export const categoryTable = pgTable("category", {
 
 export const brandTable = pgTable("brand", {
   id: serial("id").primaryKey(),
-  brandName: varchar("brand_name", { length: 255 }).notNull().unique(),
+  name: varchar("brand_name", { length: 255 }).notNull().unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()

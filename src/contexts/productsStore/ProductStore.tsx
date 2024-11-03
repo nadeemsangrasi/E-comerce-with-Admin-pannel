@@ -1,5 +1,5 @@
 "use client";
-import { IProduct } from "@/types/types";
+import { ICategoryBrand, IProduct } from "@/types/types";
 import axios, { AxiosError } from "axios";
 import React, {
   createContext,
@@ -14,8 +14,12 @@ interface ProductContextType {
   products: IProduct[];
   setProducts: React.Dispatch<React.SetStateAction<IProduct[]>>;
   loading: boolean;
-  isUpdating: boolean;
-  setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>;
+  categories: ICategoryBrand[];
+  setCategories: React.Dispatch<React.SetStateAction<ICategoryBrand[]>>;
+  catLoading: boolean;
+  brands: ICategoryBrand[];
+  setBrands: React.Dispatch<React.SetStateAction<ICategoryBrand[]>>;
+  brandLoading: boolean;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -23,7 +27,10 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [catLoading, setCatLoading] = useState<boolean>(false);
+  const [categories, setCategories] = useState<ICategoryBrand[]>([]);
+  const [brandLoading, setBrandLoading] = useState<boolean>(false);
+  const [brands, setBrands] = useState<ICategoryBrand[]>([]);
   useEffect(() => {
     const fetcher = async () => {
       try {
@@ -36,7 +43,7 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         const productWithImages = await Promise.all(
           res.data.data.map(async (product: IProduct) => {
             const imgRes = await axios.get(
-              "/api/product-images/get?productId=" + product.id
+              "/api/product-images?productId=" + product.id
             );
             const images = imgRes.data.data || [];
             return {
@@ -55,7 +62,7 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
           })
         );
 
-        setProducts(productWithImages);
+        setProducts(productWithImages.sort((a, b) => a.id - b.id));
       } catch (error) {
         const axiosError = error as AxiosError;
         console.error(axiosError.message);
@@ -65,11 +72,57 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       }
     };
     fetcher();
+    const fetchCategory = async () => {
+      try {
+        setCatLoading(true);
+        const res = await axios.get("http://localhost:3000/api/category");
+        if (res.status !== 200) {
+          console.error(res.data.message);
+          toast.error(res.data.message);
+        }
+        setCategories(res.data.data);
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error(axiosError.message);
+        toast.error(axiosError.message);
+      } finally {
+        setCatLoading(false);
+      }
+    };
+    fetchCategory();
+    const fetchBrands = async () => {
+      try {
+        setBrandLoading(true);
+        const res = await axios.get("http://localhost:3000/api/brand");
+        if (res.status !== 200) {
+          console.error(res.data.message);
+          toast.error(res.data.message);
+        }
+        setBrands(res.data.data);
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error(axiosError.message);
+        toast.error(axiosError.message);
+      } finally {
+        setBrandLoading(false);
+      }
+    };
+    fetchBrands();
   }, []);
 
   return (
     <ProductContext.Provider
-      value={{ products, setProducts, loading, isUpdating, setIsUpdating }}
+      value={{
+        products,
+        setProducts,
+        loading,
+        categories,
+        setCategories,
+        catLoading,
+        brands,
+        setBrands,
+        brandLoading,
+      }}
     >
       {children}
     </ProductContext.Provider>

@@ -18,4 +18,13 @@ export interface IProduct {
   isFeatured: boolean;
   isArchived: boolean;
   images: { productId: string; imageUrl: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ICategoryBrand {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -1,8 +1,9 @@
 import { db } from "@/db";
 import { brandTable } from "@/db/schema";
 import { errorResponse } from "@/utils/errorResponse";
+import { isAdmin } from "@/utils/isAdmin";
 import { successResponse } from "@/utils/successResponse";
-import { auth } from "@clerk/nextjs/server";
+
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
@@ -21,15 +22,9 @@ export const GET = async () => {
 };
 
 export const POST = async (req: NextRequest) => {
-  const { userId, role }: any = auth();
-  if (!userId) {
-    return errorResponse("user not authenticated", false, 500);
-  }
-  if (role !== "admin") {
-    return errorResponse("you are not authorize for this request", false, 200);
-  }
-  const { brandName } = await req.json();
-  if (!brandName) {
+  isAdmin();
+  const { name } = await req.json();
+  if (!name) {
     return errorResponse("all fields are required", false, 400);
   }
 
@@ -37,11 +32,11 @@ export const POST = async (req: NextRequest) => {
     const newbrand = await db
       .insert(brandTable)
       .values({
-        brandName,
+        name,
       })
       .returning();
     if (newbrand.length === 0) {
-      return errorResponse("Error adding brand", false, 500);
+      return errorResponse("Error adding brand", false, 500, newbrand);
     }
 
     return successResponse("brand added successfully", true, 200);
@@ -51,15 +46,9 @@ export const POST = async (req: NextRequest) => {
   }
 };
 export const PATCH = async (req: NextRequest) => {
-  const { userId, role }: any = auth();
-  if (!userId) {
-    return errorResponse("user not authenticated", false, 500);
-  }
-  if (role !== "admin") {
-    return errorResponse("you are not authorize for this request", false, 200);
-  }
-  const { brandId, brandName } = await req.json();
-  if (!brandName || !brandId) {
+  isAdmin();
+  const { brandId, name } = await req.json();
+  if (!name || !brandId) {
     return errorResponse("all fields are required", false, 400);
   }
 
@@ -67,7 +56,7 @@ export const PATCH = async (req: NextRequest) => {
     const updatedBrand = await db
       .update(brandTable)
       .set({
-        brandName,
+        name,
       })
       .where(eq(brandTable.id, brandId))
       .returning();
@@ -84,13 +73,7 @@ export const PATCH = async (req: NextRequest) => {
 };
 
 export const DELETE = async (req: NextRequest) => {
-  const { userId, role }: any = auth();
-  if (!userId) {
-    return errorResponse("user not authenticated", false, 500);
-  }
-  if (role !== "admin") {
-    return errorResponse("you are not authorize for this request", false, 200);
-  }
+  isAdmin();
 
   const brandId = req.nextUrl.searchParams.get("brandId");
   if (!brandId) {

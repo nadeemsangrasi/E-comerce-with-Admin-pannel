@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
 import ProductButton from "./ProductButton";
 import Image from "next/image";
 import { ExpandIcon, ShoppingBag } from "lucide-react";
@@ -36,7 +36,7 @@ const ProductCard = ({ product }: { product: IProduct }) => {
   };
   const handleAddToCart = () => {};
   return (
-    <div className="w-[280px] border dark:border-gray-300 rounded-lg p-3 mx-auto ">
+    <div className="w-[280px] border dark:border-gray-300 rounded-lg p-3 mx-auto h-fit">
       {/* Image Container */}
       <div className="overflow-hidden relative group">
         <Image
@@ -54,13 +54,16 @@ const ProductCard = ({ product }: { product: IProduct }) => {
       </div>
 
       {/* Product Information */}
-      <div>
-        <div className="flex justify-between items-center">
-          <h1 className="mt-2 text-2xl tracking-tight font-semibold">
+      <div className="space-y-1">
+        <div className="flex gap-4 justify-between items-center  ">
+          <h1
+            className="mt-2 text-[1.4rem] leading-[2rem] tracking-tight font-semibold "
+            style={{ overflowWrap: "break-word", wordBreak: "break-word" }}
+          >
             {product?.title}
           </h1>
-          <span className="flex items-center gap-1">
-            <ShoppingBag size={16} />
+          <span className="flex items-center gap-1 ">
+            <ShoppingBag size={20} />
 
             {product?.totalStock}
           </span>

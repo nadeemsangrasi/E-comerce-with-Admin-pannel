@@ -11,22 +11,48 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useProductContext } from "@/contexts/productsStore/ProductStore";
+import axios, { AxiosError } from "axios";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export function NewCategoryBrandDialog({ label }: { label: string }) {
+  const { brands, setBrands, categories, setCategories } = useProductContext();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [value, setValue] = useState("");
-  const handleCreateCategory = async () => {
-    console.log(value);
-    setValue("");
-    setOpen(false);
+  const handleCrateBrandORCategory = async (label: string) => {
+    try {
+      setLoading(true);
+      const res =
+        label === "brand"
+          ? await axios.post("http://localhost:3000/api/brand", { name: value })
+          : await axios.post("http://localhost:3000/api/category", {
+              name: value,
+            });
+      if (res.status !== 200) {
+        console.error(res.data.message);
+        toast.error(res.data.message);
+      }
+      if (label === "brand") {
+        setBrands([...brands, res.data.data]);
+        toast.success(res.data.message);
+        return;
+      }
+      setCategories([...categories, res.data.data]);
+      toast.success(res.data.message);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error(axiosError.message);
+      toast.error(axiosError.message);
+    } finally {
+      setLoading(false);
+      setOpen(false);
+      setValue("");
+    }
   };
-  const handleCreateBrand = async () => {
-    console.log(value);
-    setValue("");
-    setOpen(false);
-  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -57,15 +83,10 @@ export function NewCategoryBrandDialog({ label }: { label: string }) {
         <DialogFooter>
           <Button
             type="submit"
-            onClick={
-              label.toLowerCase() === "category"
-                ? () => handleCreateCategory()
-                : label.toLowerCase() === "brand"
-                ? () => handleCreateBrand()
-                : (): void => {}
-            }
+            onClick={() => handleCrateBrandORCategory(label.toLowerCase())}
+            disabled={loading}
           >
-            Create
+            {loading ? "Creating..." : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>

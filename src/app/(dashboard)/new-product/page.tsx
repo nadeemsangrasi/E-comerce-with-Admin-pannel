@@ -33,7 +33,7 @@ const NewProduct = () => {
   const productId = searchParams.get("productId");
   const { products, setProducts } = useProductContext();
   const [images, setImages] = useState<string[]>([]);
-  const [isSubmiting, setIsSubmiting] = useState(false);
+  const [isSubmiting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const product: IProduct | undefined = products.find(
@@ -43,46 +43,35 @@ const NewProduct = () => {
   const form = useForm<CreateProductFormData>({
     resolver: zodResolver(createProductSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      category: "",
-      brand: "",
-      price: 99.9,
-      salePrice: 0,
-      totalStock: 1,
-      isArchived: false,
-      isFeatured: false,
+      title: product?.title || "",
+      description: product?.description || "",
+      category: product?.category || "",
+      brand: product?.brand || "",
+      price: product ? Number(product.price) : 99.9,
+      salePrice: product ? Number(product.salePrice) : 0,
+      totalStock: product ? Number(product.totalStock) : 1,
+      isArchived: product?.isArchived || false,
+      isFeatured: product?.isFeatured || false,
     },
   });
   useEffect(() => {
     if (product) {
-      form.reset({
-        title: product.title,
-        description: product.description,
-        price: Number(product.price),
-        salePrice: Number(product.salePrice),
-        totalStock: Number(product.totalStock),
-        isArchived: product.isArchived,
-        isFeatured: product.isFeatured,
-        category: product.category,
-        brand: product.brand,
-      });
-
       setImages(product.images.map((img) => img.imageUrl));
     }
-  }, [product]);
+  }, [productId, product, form]);
 
   const onCreateProductSubmit = async (data: CreateProductFormData) => {
     if (images.length > 0) {
-      setIsSubmiting(true);
+      setIsSubmitting(true);
       try {
         const res = productId
-          ? await axios.patch("/api/product", data)
+          ? await axios.patch("/api/product", { productId, ...data })
           : await axios.post("/api/product", data);
 
         if (res.status !== 200) {
           console.error(res.data.message);
           toast.error(res.data.message);
+          return;
         }
 
         const imgData = images.map((img) => ({
@@ -90,28 +79,61 @@ const NewProduct = () => {
           imageUrl: img,
         }));
 
-        const imgRes = await axios.post("/api/product-images/upload", {
-          images: imgData,
-        });
+        const imgRes = productId
+          ? await axios.patch("/api/product-images", { images: imgData })
+          : await axios.post("/api/product-images", { images: imgData });
 
         if (imgRes.status !== 200) {
           console.error(imgRes.data.message);
           toast.error(imgRes.data.message);
+          return;
         }
 
+        setProducts((prevProducts) => {
+          let updatedProducts;
+
+          if (productId) {
+            updatedProducts = prevProducts.map((product) =>
+              product.id.toString() === productId.toString()
+                ? {
+                    ...product,
+                    ...res.data.data,
+                    price: Number(data.price),
+                    salePrice: Number(data.salePrice),
+                    totalStock: Number(data.totalStock),
+                    images: imgData,
+                  }
+                : product
+            );
+          } else {
+            updatedProducts = [
+              ...prevProducts,
+              {
+                ...res.data.data,
+                price: Number(data.price),
+                salePrice: Number(data.salePrice),
+                totalStock: Number(data.totalStock),
+                images: imgData,
+              },
+            ];
+          }
+
+          return updatedProducts;
+        });
+
         toast.success(res.data.message);
-        router.push("/products");
+        router.replace("/products");
       } catch (error) {
         const AxiosError = error as AxiosError;
         console.error(AxiosError.message);
         toast.error(AxiosError.message);
       } finally {
-        setIsSubmiting(false);
+        setIsSubmitting(false);
         setImages([]);
         form.reset();
       }
     } else {
-      toast.error("Please upload image");
+      toast.error("Please upload an image");
     }
   };
 
@@ -133,7 +155,10 @@ const NewProduct = () => {
         <div className="pt-3 w-3/5">
           <FormProvider {...form}>
             {" "}
-            <form onSubmit={form.handleSubmit(onCreateProductSubmit)}>
+            <form
+              onSubmit={form.handleSubmit(onCreateProductSubmit)}
+              key={productId || "new"}
+            >
               {/* Title and Total Stock Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormField

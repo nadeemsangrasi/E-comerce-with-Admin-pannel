@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { productTable } from "@/db/schema";
 import { errorResponse } from "@/utils/errorResponse";
+import { isAdmin } from "@/utils/isAdmin";
 import { successResponse } from "@/utils/successResponse";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
@@ -24,24 +25,7 @@ export const GET = async () => {
   }
 };
 export const POST = async (req: NextRequest) => {
-  const { userId } = auth();
-
-  if (!userId) {
-    return errorResponse("user not authenticated", false, 500);
-  }
-
-  const clerk = clerkClient();
-
-  const user = await clerk.users.getUser(userId);
-  const role = user.publicMetadata.role;
-
-  if (role !== "admin") {
-    return errorResponse(
-      "only admin is authorize for this request",
-      false,
-      403
-    );
-  }
+  isAdmin();
   const {
     title,
     description,
@@ -84,21 +68,7 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const PATCH = async (req: NextRequest) => {
-  const { userId } = auth();
-  if (!userId) {
-    return errorResponse("user not authenticated", false, 500);
-  }
-  const clerk = clerkClient();
-
-  const user = await clerk.users.getUser(userId);
-  const role = user.publicMetadata.role;
-  if (role !== "admin") {
-    return errorResponse(
-      "only admin is authorize for this request",
-      false,
-      200
-    );
-  }
+  isAdmin();
   const {
     productId,
     title,
@@ -134,7 +104,12 @@ export const PATCH = async (req: NextRequest) => {
     if (updatedProduct.length === 0) {
       return errorResponse("product not found", false, 404);
     }
-    return successResponse("Product updated successfully", true, 200);
+    return successResponse(
+      "Product updated successfully",
+      true,
+      200,
+      updatedProduct[0]
+    );
   } catch (error) {
     const err = error as Error;
     return errorResponse(err.message, false, 500);
@@ -142,20 +117,7 @@ export const PATCH = async (req: NextRequest) => {
 };
 
 export const DELETE = async (req: NextRequest) => {
-  const { userId } = auth();
-  if (!userId) {
-    return errorResponse("user not authenticated", false, 500);
-  }
-  const user = await clerkClient.users.getUser(userId);
-  const role = user.publicMetadata.role;
-  if (role !== "admin") {
-    return errorResponse(
-      "only admin is authorize for this request",
-      false,
-      200
-    );
-  }
-
+  isAdmin();
   const productId = req.nextUrl.searchParams.get("productId");
   if (!productId) {
     return errorResponse("productId is required", false, 500);
