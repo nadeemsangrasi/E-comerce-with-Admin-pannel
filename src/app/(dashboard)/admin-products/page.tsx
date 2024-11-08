@@ -1,12 +1,13 @@
 "use client";
+
 import AddNewButton from "@/components/dashboard/AddNewButton";
 import DashboardPagesHeadings from "@/components/dashboard/DashboardPagesHeadings";
 import DashboardPagesWrapper from "@/components/dashboard/DashboardPagesWrapper";
-
 import ProductCard from "@/components/shared/ProductCard";
 import { useProductContext } from "@/contexts/productsStore/ProductStore";
 
 import { IProduct } from "@/types/types";
+import Loader from "@/components/shared/Loader";
 
 const ProductPage = () => {
   const { products, loading } = useProductContext();
@@ -22,16 +23,19 @@ const ProductPage = () => {
         </div>
         <AddNewButton btnType="product" />
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-5 ">
-        {loading ? (
-          <div>loading....</div>
-        ) : (
-          products?.map((product: IProduct) => (
-            <ProductCard key={product.id} product={product} />
-          ))
-        )}
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center h-[calc(100%-100px)] w-[calc(100%-200px)]">
+          <Loader loading={loading} text="Loading Products, please wait..." />;
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
+            {products?.map((product: IProduct) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </>
+      )}
     </DashboardPagesWrapper>
   );
 };

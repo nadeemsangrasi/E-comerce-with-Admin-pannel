@@ -6,6 +6,7 @@ import { NewCategoryBrandDialog } from "@/components/dashboard/NewCategoryBrandD
 import React from "react";
 import { useProductContext } from "@/contexts/productsStore/ProductStore";
 import { ICategoryBrand } from "@/types/types";
+import Loader from "@/components/shared/Loader";
 const BrandPage = () => {
   const { brands, brandLoading } = useProductContext();
   return (
@@ -16,15 +17,21 @@ const BrandPage = () => {
         </div>
         <NewCategoryBrandDialog label="Brand" />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-5 ">
-        {brandLoading ? (
-          <div>loading....</div>
-        ) : (
-          brands?.map((brand: ICategoryBrand) => (
+      {brandLoading ? (
+        <div className="flex justify-center items-center h-[calc(100%-100px)] w-[calc(100%-200px)]">
+          <Loader
+            loading={brandLoading}
+            text="Loading Brands, please wait..."
+          />
+          ;
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-5 ">
+          {brands?.map((brand: ICategoryBrand) => (
             <CategoryBrandCard cardType="brand" data={brand} key={brand?.id} />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </DashboardPagesWrapper>
   );
 };

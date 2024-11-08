@@ -8,13 +8,14 @@ import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useProductContext } from "@/contexts/productsStore/ProductStore";
+import { useUser } from "@clerk/nextjs";
 
 const ProductCard = ({ product }: { product: IProduct }) => {
-  const { products, setProducts } = useProductContext();
-
+  const { products, setProducts, addToCart } = useProductContext();
+  const { user } = useUser();
+  const role = user?.publicMetadata?.role;
   const router = useRouter();
 
-  const role = "admin";
   const handleDeleteProduct = async () => {
     try {
       const res = await axios.delete("/api/product?productId=" + product.id);
@@ -34,13 +35,13 @@ const ProductCard = ({ product }: { product: IProduct }) => {
   const handleEditProduct = () => {
     router.push("/new-product?productId=" + product.id);
   };
-  const handleAddToCart = () => {};
+
   return (
     <div className="w-[280px] border dark:border-gray-300 rounded-lg p-3 mx-auto h-fit">
       {/* Image Container */}
       <div className="overflow-hidden relative group">
         <Image
-          src={product.images[0]?.imageUrl || ""}
+          src={product.images[0].imageUrl || ""}
           alt="product image"
           width={1000}
           height={1000}
@@ -78,10 +79,10 @@ const ProductCard = ({ product }: { product: IProduct }) => {
         </div>
         <div className="flex justify-between">
           <p className="line-through text-lg font-medium text-red-600">
-            {product.price}
+            ${product.price}
           </p>
           <p className="text-lg font-medium text-green-600">
-            {product.salePrice || ""}
+            ${product.salePrice || ""}
           </p>
         </div>
       </div>
@@ -104,7 +105,9 @@ const ProductCard = ({ product }: { product: IProduct }) => {
         ) : (
           <ProductButton
             label="Add to cart"
-            onClick={handleAddToCart}
+            onClick={() => {
+              addToCart(product);
+            }}
             className="w-full"
           />
         )}

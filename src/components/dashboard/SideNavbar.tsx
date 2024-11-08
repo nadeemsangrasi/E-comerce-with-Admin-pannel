@@ -6,10 +6,8 @@ import { Nav } from "@/components/ui/nav";
 
 import {
   LayoutDashboard,
-  UsersRound,
   ChevronRight,
   LogOut,
-  Settings,
   BadgeCheck,
   UserRound,
   ShoppingBag,
@@ -57,23 +55,23 @@ export default function SideNavbar() {
             title: "Dashboard",
             href: "/dashboard",
             icon: LayoutDashboard,
-            variant: "default",
+            variant: "ghost",
           },
           {
             title: "Products",
-            href: "/products",
+            href: "/admin-products",
             icon: ShoppingBag,
             variant: "ghost",
           },
           {
             title: "Categories",
-            href: "/categories",
+            href: "/admin-categories",
             icon: LayoutList,
             variant: "ghost",
           },
           {
             title: "Brands",
-            href: "/brands",
+            href: "/admin-brands",
             icon: LayoutList,
             variant: "ghost",
           },
@@ -90,10 +88,10 @@ export default function SideNavbar() {
             variant: "ghost",
           },
           {
-            title: "Logout",
+            title: "Back",
             href: "/",
             icon: LogOut,
-            variant: "default",
+            variant: "ghost",
           },
         ]}
       />

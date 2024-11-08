@@ -5,6 +5,7 @@ import { useProductContext } from "@/contexts/productsStore/ProductStore";
 import toast from "react-hot-toast";
 import axios, { AxiosError } from "axios";
 import { ICategoryBrand } from "@/types/types";
+import { EditCategoryOrBrandCardDialog } from "./EditCategoryOrBrandCardDialog";
 const CategoryBrandCard = ({
   data,
   cardType,
@@ -55,7 +56,12 @@ const CategoryBrandCard = ({
         </span>
       </div>
       <div className="flex justify-between mt-2 ">
-        <Edit className="text-green-600 font-semibold cursor-pointer" />
+        <EditCategoryOrBrandCardDialog
+          label={cardType}
+          id={data.id}
+          initialValue={data.name}
+        />
+
         <Trash
           className="text-red-600 font-semibold cursor-pointer"
           onClick={() =>

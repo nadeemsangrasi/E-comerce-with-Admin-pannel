@@ -348,10 +348,10 @@ const NewProduct = () => {
               <Button type="submit" className="w-full mt-5">
                 {isSubmiting
                   ? productId
-                    ? "Updating..."
+                    ? "Saving..."
                     : "Creating..."
                   : productId
-                  ? "Update"
+                  ? "Save Changes"
                   : "Create"}
               </Button>
             </form>

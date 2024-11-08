@@ -1,11 +1,6 @@
 "use client";
-
 import * as React from "react";
-import {
-  CaretSortIcon,
-  ChevronDownIcon,
-  DotsHorizontalIcon,
-} from "@radix-ui/react-icons";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -20,10 +15,9 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -39,113 +33,42 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const data: Payment[] = [
-  {
-    username: "m5gr84i9",
-    phone: 316,
-    address: "success",
-    totalPrice: "ken99@yahoo.com",
-  },
-  {
-    username: "3u1reuv4",
-    phone: 242,
-    address: "success",
-    totalPrice: "Abe45@gmail.com",
-  },
-  {
-    username: "derv1ws0",
-    phone: 837,
-    address: "processing",
-    totalPrice: "Monserrat44@gmail.com",
-  },
-  {
-    username: "5kma53ae",
-    phone: 874,
-    address: "success",
-    totalPrice: "Silas22@gmail.com",
-  },
-  {
-    username: "bhqecj4p",
-    phone: 721,
-    address: "failed",
-    totalPrice: "carmella@hotmail.com",
-  },
-];
-
-export type Payment = {
-  username: string;
-  phone: number;
-  address: "pending" | "processing" | "success" | "failed";
-  totalPrice: string;
-};
-
-export const columns: ColumnDef<Payment>[] = [
-  {
-    accessorKey: "username",
-    header: "Username",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("username")}</div>
-    ),
-  },
-  {
-    accessorKey: "phone",
-    header: "Phone",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("phone")}</div>
-    ),
-  },
-  {
-    accessorKey: "address",
-    header: "Address",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("address")}</div>
-    ),
-  },
-  {
-    accessorKey: "totalPrice",
-    header: "Total Price",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("totalPrice")}</div>
-    ),
-  },
-  {
-    accessorKey: "paid",
-    header: "Paid",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("paid")}</div>,
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+import axios, { AxiosError } from "axios";
+import { IOrder } from "@/types/types";
+import { useProductContext } from "@/contexts/productsStore/ProductStore";
+import toast from "react-hot-toast";
+import DashboardPagesHeadings from "../dashboard/DashboardPagesHeadings";
+import Loader from "./Loader";
 
 export function OrderTable() {
+  const { orders, setOrders, orderLoading } = useProductContext();
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    setLoading(true);
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }, [orders]);
+
+  const handleDeleteOrder = async (id: string) => {
+    try {
+      const res = await axios.delete("/api/order?orderId=" + id);
+      if (res.status !== 200) {
+        console.error(res.data.message);
+        toast.error(res.data.message);
+        return;
+      }
+      setOrders(orders.filter((p: IOrder) => p.id !== id));
+      toast.success(res.data.message);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error(axiosError.message);
+      toast.error(axiosError.message);
+    }
+  };
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -153,8 +76,85 @@ export function OrderTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
+  const columns: ColumnDef<IOrder>[] = [
+    {
+      accessorKey: "products",
+      header: "Products",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("products")}</div>
+      ),
+    },
+    {
+      accessorKey: "phone",
+      header: "Phone",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("phone")}</div>
+      ),
+    },
+    {
+      accessorKey: "address",
+      header: "Address",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("address")}</div>
+      ),
+    },
+    {
+      accessorKey: "totalPrice",
+      header: "Total Price",
+      cell: ({ row }) => (
+        <div className="capitalize">{"$" + row.getValue("totalPrice")}</div>
+      ),
+    },
+    {
+      accessorKey: "isPaid",
+      header: "Status",
+      cell: ({ row }) => (
+        <div
+          className={`${
+            row.getValue("isPaid") ? "text-green-500" : "text-red-500"
+          }`}
+        >
+          {row.getValue("isPaid") ? "Paid" : "Unpaid"}
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const order = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  navigator.clipboard.writeText(order.id);
+                  toast.success("Order ID copied to clipboard");
+                }}
+              >
+                Copy Order ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleDeleteOrder(order.id)}>
+                Delete Order
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
   const table = useReactTable({
-    data,
+    data: orders,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -173,14 +173,15 @@ export function OrderTable() {
 
   return (
     <div className="w-full">
+      <DashboardPagesHeadings primaryText="Orders" items={orders?.length} />
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter by username..."
+          placeholder="Filter by products..."
           value={
-            (table.getColumn("username")?.getFilterValue() as string) ?? ""
+            (table.getColumn("products")?.getFilterValue() as string) ?? ""
           }
           onChange={(event) =>
-            table.getColumn("username")?.setFilterValue(event.target.value)
+            table.getColumn("products")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -190,28 +191,32 @@ export function OrderTable() {
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+            {orderLoading || loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center h-24"
                 >
+                  <Loader loading={orderLoading} text="Loading orders..." />
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -226,7 +231,7 @@ export function OrderTable() {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="text-center h-24"
                 >
                   No results.
                 </TableCell>

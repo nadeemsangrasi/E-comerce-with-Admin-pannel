@@ -48,7 +48,7 @@ export const POST = async (req: NextRequest) => {
       "category added successfully",
       true,
       200,
-      newCategory
+      newCategory[0]
     );
   } catch (error) {
     const err = error as Error;
@@ -74,7 +74,12 @@ export const PATCH = async (req: NextRequest) => {
       return errorResponse("category not found", false, 404);
     }
 
-    return successResponse("category updated successfully", true, 200);
+    return successResponse(
+      "category updated successfully",
+      true,
+      200,
+      updatedCategory[0]
+    );
   } catch (error) {
     const err = error as Error;
     return errorResponse(err.message, false, 500);

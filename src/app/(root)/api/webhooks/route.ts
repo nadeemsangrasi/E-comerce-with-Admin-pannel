@@ -42,6 +42,7 @@ export async function POST(req: Request) {
   }
 
   const eventType = evt.type;
+
   if (eventType === "user.created") {
     const { id, email_addresses, first_name, last_name, image_url, username } =
       evt.data;
@@ -61,7 +62,8 @@ export async function POST(req: Request) {
         .returning();
 
       if (newUser.length > 0) {
-        await clerkClient.users.updateUserMetadata(id as string, {
+        const clerk = clerkClient();
+        await clerk.users.updateUserMetadata(id as string, {
           publicMetadata: {
             userId: newUser[0].clerkId,
             role: newUser[0].role,
@@ -77,4 +79,6 @@ export async function POST(req: Request) {
       });
     }
   }
+
+  return new Response("Webhook event type not handled", { status: 200 });
 }

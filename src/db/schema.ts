@@ -7,6 +7,7 @@ import {
   integer,
   boolean,
   numeric,
+  json,
 } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
@@ -46,7 +47,7 @@ export const productImageTable = pgTable("product_image", {
   id: serial("id").primaryKey(),
   productId: integer("product_id")
     .notNull()
-    .references(() => productTable.id, { onDelete: "cascade" }), // Cascade when product is deleted
+    .references(() => productTable.id, { onDelete: "cascade" }),
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
@@ -96,10 +97,10 @@ export const cartTable = pgTable("cart", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id", { length: 255 })
     .notNull()
-    .references(() => userTable.clerkId, { onDelete: "cascade" }), // Cascade when user is deleted
+    .references(() => userTable.clerkId, { onDelete: "cascade" }),
   productId: integer("product_id")
     .notNull()
-    .references(() => productTable.id, { onDelete: "cascade" }), // Cascade when product is deleted
+    .references(() => productTable.id, { onDelete: "cascade" }),
   productTitle: varchar("product_title", { length: 256 }).notNull(),
   productImage: varchar("product_image", { length: 256 }),
   productPrice: integer("product_price").notNull(),
@@ -121,6 +122,8 @@ export const orderTable = pgTable("order", {
   isPaid: boolean("is_paid").notNull().default(false),
   phone: varchar("phone", { length: 255 }),
   address: varchar("address", { length: 255 }),
+  totalPrice: numeric("total_price").notNull().default(0),
+  products: json("products").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()

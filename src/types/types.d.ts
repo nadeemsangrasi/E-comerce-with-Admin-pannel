@@ -28,3 +28,47 @@ export interface ICategoryBrand {
   createdAt: string;
   updatedAt: string;
 }
+
+export type IOrder = {
+  id: string;
+  products: string[];
+  phone: number;
+  address: string;
+  totalPrice: string;
+  isPaid: boolean;
+};
+
+interface ProductContextType {
+  products: IProduct[];
+  setProducts: React.Dispatch<React.SetStateAction<IProduct[]>>;
+  loading: boolean;
+  categories: ICategoryBrand[];
+  setCategories: React.Dispatch<React.SetStateAction<ICategoryBrand[]>>;
+  catLoading: boolean;
+  brands: ICategoryBrand[];
+  setBrands: React.Dispatch<React.SetStateAction<ICategoryBrand[]>>;
+  brandLoading: boolean;
+  orderLoading: boolean;
+  setOrders: React.Dispatch<React.SetStateAction<IOrder[]>>;
+  orders: IOrder[];
+  cart: ICart[];
+
+  addToCart: (item: IProduct) => void;
+  removeFromCart: (itemId: string) => void;
+  totalAmount: number;
+  isCartLoading: boolean;
+  handleCartIncrement: (id: string) => void;
+  handleCartDecrement: (id: string) => void;
+}
+
+export interface ICart {
+  id: string;
+  userId: string;
+  productId: string;
+  productTitle: string;
+  productImage: string;
+  productPrice: number;
+  productSalePrice: number;
+  quantity: number;
+  productStock: number;
+}

@@ -36,10 +36,10 @@ export const POST = async (req: NextRequest) => {
       })
       .returning();
     if (newbrand.length === 0) {
-      return errorResponse("Error adding brand", false, 500, newbrand);
+      return errorResponse("Error adding brand", false, 500);
     }
 
-    return successResponse("brand added successfully", true, 200);
+    return successResponse("brand added successfully", true, 200, newbrand[0]);
   } catch (error) {
     const err = error as Error;
     return errorResponse(err.message, false, 500);
@@ -65,7 +65,12 @@ export const PATCH = async (req: NextRequest) => {
       return errorResponse("brand not found", false, 404);
     }
 
-    return successResponse("brand  successfully", true, 200);
+    return successResponse(
+      "brand updated successfully",
+      true,
+      200,
+      updatedBrand[0]
+    );
   } catch (error) {
     const err = error as Error;
     return errorResponse(err.message, false, 500);

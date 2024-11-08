@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { cartTable } from "@/db/schema";
+
 import { errorResponse } from "@/utils/errorResponse";
 import { successResponse } from "@/utils/successResponse";
 import { auth } from "@clerk/nextjs/server";
@@ -58,7 +59,8 @@ export const POST = async (req: NextRequest) => {
     !productTitle ||
     !productImage ||
     !productPrice ||
-    !quantity ||
+    quantity === null ||
+    quantity === undefined ||
     !productStock
   ) {
     return errorResponse("all fields are required", false, 400);
@@ -73,43 +75,58 @@ export const POST = async (req: NextRequest) => {
       .where(
         and(eq(cartTable.productId, productId), eq(cartTable.userId, userId))
       );
+
     if (existingCart.length > 0) {
-      if (existingCart[0].quantity < productStock) {
-        const newQuantity = existingCart[0].quantity + 1;
-        if (existingCart[0].productSalePrice) {
-          const newSalePrice = parseFloat(
-            (
-              existingCart[0].productSalePrice +
-              existingCart[0].productSalePrice / existingCart[0].quantity
-            ).toFixed(2)
-          );
+      const currentQuantity = existingCart[0].quantity;
+      const maxStock = productStock;
 
-          await db
-            .update(cartTable)
-            .set({
-              quantity: newQuantity,
-              productSalePrice: newSalePrice,
-            })
-            .where(eq(cartTable.id, existingCart[0].id));
-        } else {
-          const newPrice = parseFloat(
-            (
-              existingCart[0].productPrice +
-              existingCart[0].productPrice / existingCart[0].quantity
-            ).toFixed(2)
-          );
+      // Check if adding more exceeds stock
+      if (currentQuantity >= maxStock) {
+        return errorResponse("Product is out of stock", false, 200);
+      }
 
-          await db
-            .update(cartTable)
-            .set({
-              quantity: newQuantity,
-              productPrice: newPrice,
-            })
-            .where(eq(cartTable.id, existingCart[0].id));
-        }
-        return successResponse("Product incremented successfully", true, 200);
+      // If stock is available, proceed to increase quantity
+      const newQuantity = currentQuantity + 1;
+
+      if (existingCart[0].productSalePrice) {
+        const newSalePrice = parseFloat(
+          (
+            existingCart[0].productSalePrice +
+            existingCart[0].productSalePrice / currentQuantity
+          ).toFixed(2)
+        );
+
+        const updated = await db
+          .update(cartTable)
+          .set({
+            quantity: newQuantity,
+            productSalePrice: newSalePrice,
+          })
+          .where(eq(cartTable.id, existingCart[0].id))
+          .returning();
+
+        return successResponse("Item quantity updated!", true, 200, updated[0]);
       } else {
-        return errorResponse("Product is out of stock", false, 500);
+        const newPrice = parseFloat(
+          (
+            existingCart[0].productPrice +
+            existingCart[0].productPrice / currentQuantity
+          ).toFixed(2)
+        );
+
+        await db
+          .update(cartTable)
+          .set({
+            quantity: newQuantity,
+            productPrice: newPrice,
+          })
+          .where(eq(cartTable.id, existingCart[0].id));
+
+        return successResponse(
+          "Item successfully added to your cart!",
+          true,
+          200
+        );
       }
     } else {
       const newCart = await db
@@ -129,7 +146,7 @@ export const POST = async (req: NextRequest) => {
       if (newCart.length === 0) {
         return errorResponse("Error adding new cart in db", false, 500);
       }
-      return successResponse("Product added to cart", true, 200);
+      return successResponse("Product added to cart", true, 200, newCart[0]);
     }
   } catch (error) {
     const err = error as Error;
@@ -276,7 +293,7 @@ export const DELETE = async (req: NextRequest) => {
     if (deletedCart.length === 0) {
       return errorResponse("cart not found", false, 404);
     }
-    return successResponse("Cart deleted successfully", true, 200);
+    return successResponse("Product removed successfully", true, 200);
   } catch (error) {
     const err = error as Error;
     return errorResponse(err.message, false, 500);

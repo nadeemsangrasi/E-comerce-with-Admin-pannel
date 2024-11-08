@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { orderItemTable, orderTable, cartTable } from "@/db/schema";
 import { stripe } from "@/lib/stripe";
 import { errorResponse } from "@/utils/errorResponse";
+import { isAdmin } from "@/utils/isAdmin";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
@@ -18,11 +19,7 @@ export const OPTIONS = async () => {
 };
 
 export const POST = async (req: NextRequest) => {
-  // const { userId }: any = auth();
-
-  // if (!userId) {
-  //   return errorResponse("user not authenticated", false, 500);
-  // }
+  isAdmin();
 
   const { cartIds } = await req.json();
   if (!cartIds || cartIds.length === 0) {
@@ -42,6 +39,13 @@ export const POST = async (req: NextRequest) => {
       })
     );
 
+    let totalPrice = 0;
+    const products = carts.map((cart: any) => {
+      const price = cart?.productSalePrice || cart?.productPrice;
+      totalPrice += price * (cart?.quantity || 1); // Sum up total price
+
+      return cart?.productTitle;
+    });
     // Prepare line items for Stripe Checkout
     const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] =
       carts.map((cart: any) => ({
@@ -62,16 +66,24 @@ export const POST = async (req: NextRequest) => {
       .values({
         userId: "clerk_4",
         isPaid: false,
+        totalPrice: totalPrice.toString(),
+        products: JSON.stringify(products),
       })
       .returning();
 
     await Promise.all(
       carts.map(async (cart: any) => {
-        await db.insert(orderItemTable).values({
-          orderId: order[0]?.id,
-          productId: cart?.productId,
-          quantity: cart?.quantity,
-        });
+        if (cart?.productId) {
+          await db.insert(orderItemTable).values({
+            orderId: order[0]?.id,
+            productId: cart.productId,
+            quantity: cart?.quantity || 1,
+          });
+        } else {
+          console.error(
+            `Missing productId for cart item: ${JSON.stringify(cart)}`
+          );
+        }
       })
     );
 
