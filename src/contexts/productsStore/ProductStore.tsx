@@ -8,6 +8,7 @@ import {
 } from "@/types/types";
 import { useUser } from "@clerk/nextjs";
 import axios, { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 import React, {
   createContext,
   FC,
@@ -31,6 +32,7 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
   const [orderLoading, setOrderLoading] = useState(false);
   const { user } = useUser();
   const role = user?.publicMetadata?.role;
+  const router = useRouter();
   useEffect(() => {
     const fetcher = async () => {
       if (role !== "admin") {
@@ -201,6 +203,7 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
   const addToCart = async (item: IProduct) => {
     try {
       if (!user?.id) {
+        router.replace("/sign-in");
         toast.error("Please login to add items to cart");
         return;
       }

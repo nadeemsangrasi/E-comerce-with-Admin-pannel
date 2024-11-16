@@ -6,16 +6,18 @@ import React from "react";
 const NewArrivalCard = ({
   img,
   title,
+  cat,
 }: {
   img: StaticImageData;
   title: string;
+  cat: string;
 }) => {
   return (
     <div className="w-[250px] sm:w-[400px] mx-auto">
       <div>
         <Image src={img} alt="image" />
       </div>
-      <Link href="/products">
+      <Link href={"/category/" + cat}>
         <div className="flex justify-between items-center mt-4">
           <div>
             <h3 className="text-2xl sm:text-3xl font-medium">{title}</h3>

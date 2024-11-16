@@ -11,6 +11,7 @@ import ReviewCard from "./ReviewCard";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 export interface IReview {
   id: string;
   productId: string;
@@ -22,64 +23,6 @@ export interface IReview {
   createdAt: string;
   updatedAt: string;
 }
-
-export const rev: IReview[] = [
-  {
-    id: "1",
-    productId: "101",
-    userId: "u001",
-    username: "JohnDoe",
-    imageUrl: "https://via.placeholder.com/150",
-    reviewValue: "4.5",
-    reviewMessage: "Great product, really enjoyed using it!",
-    createdAt: "2024-10-01T12:34:56Z",
-    updatedAt: "2024-10-02T14:23:12Z",
-  },
-  {
-    id: "2",
-    productId: "101",
-    userId: "u002",
-    username: "JaneSmith",
-    imageUrl: "https://via.placeholder.com/150",
-    reviewValue: "4.0",
-    reviewMessage: "Good quality, met my expectations.",
-    createdAt: "2024-10-03T15:45:01Z",
-    updatedAt: "2024-10-04T10:12:34Z",
-  },
-  {
-    id: "3",
-    productId: "102",
-    userId: "u003",
-    username: "AlexBrown",
-    imageUrl: "https://via.placeholder.com/150",
-    reviewValue: "5.0",
-    reviewMessage: "Excellent! Highly recommended.",
-    createdAt: "2024-10-05T08:22:30Z",
-    updatedAt: "2024-10-05T09:45:56Z",
-  },
-  {
-    id: "4",
-    productId: "103",
-    userId: "u004",
-    username: "SamGreen",
-    imageUrl: "https://via.placeholder.com/150",
-    reviewValue: "3.5",
-    reviewMessage: "Decent product but could be improved.",
-    createdAt: "2024-10-06T16:10:20Z",
-    updatedAt: "2024-10-06T18:34:44Z",
-  },
-  {
-    id: "5",
-    productId: "104",
-    userId: "u005",
-    username: "ChrisLee",
-    imageUrl: "https://via.placeholder.com/150",
-    reviewValue: "4.8",
-    reviewMessage: "Amazing experience, worth every penny!",
-    createdAt: "2024-10-07T11:56:33Z",
-    updatedAt: "2024-10-08T13:12:47Z",
-  },
-];
 
 const ReviewSection = ({ productId }: { productId: string }): JSX.Element => {
   const [review, setReview] = useState<CReview>({
@@ -99,6 +42,7 @@ const ReviewSection = ({ productId }: { productId: string }): JSX.Element => {
 
   const handleSubmitReview: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+
     setIsSubmitting(true);
 
     try {

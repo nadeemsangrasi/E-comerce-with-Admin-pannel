@@ -45,7 +45,12 @@ const NewArrivalSection = () => {
               cat: string;
             }) => (
               <Link href={"/category/" + cat} key={cat}>
-                <NewArrivalCard key={title} img={image} title={title} />
+                <NewArrivalCard
+                  key={title}
+                  img={image}
+                  title={title}
+                  cat={cat}
+                />
               </Link>
             )
           )}
