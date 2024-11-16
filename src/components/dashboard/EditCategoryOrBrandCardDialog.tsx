@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useProductContext } from "@/contexts/productsStore/ProductStore";
+import { slugify } from "@/utils/slugify";
 import axios, { AxiosError } from "axios";
 import { Edit } from "lucide-react";
 import { useState } from "react";
@@ -35,14 +36,19 @@ export function EditCategoryOrBrandCardDialog({
       setLoading(true);
       const res =
         label === "brand"
-          ? await axios.patch("http://localhost:3000/api/brand", {
+          ? await axios.patch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/brand`, {
               brandId: id,
               name: value,
+              slug: slugify(value),
             })
-          : await axios.patch("http://localhost:3000/api/category", {
-              categoryId: id,
-              name: value,
-            });
+          : await axios.patch(
+              `${process.env.NEXT_PUBLIC_DOMAIN}/api/category`,
+              {
+                categoryId: id,
+                name: value,
+                slug: slugify(value),
+              }
+            );
       if (res.status !== 200) {
         console.error(res.data.message);
         toast.error(res.data.message);
@@ -62,8 +68,9 @@ export function EditCategoryOrBrandCardDialog({
       toast.success(res.data.message);
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error(axiosError.message);
-      toast.error(axiosError.message);
+      console.error(axiosError);
+      const errorMessage = axiosError?.response?.data as { message: string };
+      toast.error(errorMessage?.message || "An error occurred");
     } finally {
       setLoading(false);
       setOpen(false);

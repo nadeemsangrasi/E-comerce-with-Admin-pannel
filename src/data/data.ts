@@ -1,28 +1,15 @@
-export const category = [
-  {
-    value: "cat1",
-    label: "Cat 1",
-  },
-  {
-    value: "cat2",
-    label: "Cat 2",
-  },
-  {
-    value: "cat3",
-    label: "Cat 3",
-  },
-];
-export const brand = [
-  {
-    value: "brand1",
-    label: "brand 1",
-  },
-  {
-    value: "barnd2",
-    label: "Barnd 2",
-  },
-  {
-    value: "brand3",
-    label: "brand 3",
-  },
+export const selectOptions = [
+  { value: "aToZ", label: "Title (A-Z)" },
+  { value: "zToA", label: "Title (Z-A)" },
+  { value: "priceAsc", label: "Price (Low to High)" },
+  { value: "priceDesc", label: "Price (High to Low)" },
+  { value: "salePriceAsc", label: "Sale Price (Low to High)" },
+  { value: "salePriceDesc", label: "Sale Price (High to Low)" },
+  { value: "stockAsc", label: "Stock (Low to High)" },
+  { value: "stockDesc", label: "Stock (High to Low)" },
+  { value: "ratingAsc", label: "Rating (Low to High)" },
+  { value: "ratingDesc", label: "Rating (High to Low)" },
+  { value: "newest", label: "Newest" },
+  { value: "oldest", label: "Oldest" },
+  { value: "featured", label: "Featured First" },
 ];

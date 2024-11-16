@@ -23,8 +23,8 @@ export const GET = async () => {
 
 export const POST = async (req: NextRequest) => {
   isAdmin();
-  const { name } = await req.json();
-  if (!name) {
+  const { name, slug } = await req.json();
+  if (!name || !slug) {
     return errorResponse("all fields are required", false, 400);
   }
 
@@ -33,6 +33,7 @@ export const POST = async (req: NextRequest) => {
       .insert(brandTable)
       .values({
         name,
+        slug,
       })
       .returning();
     if (newbrand.length === 0) {
@@ -47,8 +48,8 @@ export const POST = async (req: NextRequest) => {
 };
 export const PATCH = async (req: NextRequest) => {
   isAdmin();
-  const { brandId, name } = await req.json();
-  if (!name || !brandId) {
+  const { brandId, name, slug } = await req.json();
+  if (!name || !brandId || !slug) {
     return errorResponse("all fields are required", false, 400);
   }
 
@@ -57,6 +58,7 @@ export const PATCH = async (req: NextRequest) => {
       .update(brandTable)
       .set({
         name,
+        slug,
       })
       .where(eq(brandTable.id, brandId))
       .returning();

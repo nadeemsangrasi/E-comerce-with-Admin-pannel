@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Linkedin, Twitch, Twitter } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 interface IIcon {
@@ -54,10 +54,6 @@ const company: ILink[] = [
 ];
 
 const quickLinks: ILink[] = [
-  {
-    name: "Blogs",
-    url: "/blogs",
-  },
   {
     name: "Products",
     url: "/products",

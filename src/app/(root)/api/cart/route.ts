@@ -65,9 +65,11 @@ export const POST = async (req: NextRequest) => {
   ) {
     return errorResponse("all fields are required", false, 400);
   }
+
   if (isUser !== userId) {
     return errorResponse("you are not authorized for this request", false, 403);
   }
+
   try {
     const existingCart = await db
       .select()
@@ -80,20 +82,18 @@ export const POST = async (req: NextRequest) => {
       const currentQuantity = existingCart[0].quantity;
       const maxStock = productStock;
 
-      // Check if adding more exceeds stock
       if (currentQuantity >= maxStock) {
         return errorResponse("Product is out of stock", false, 200);
       }
 
-      // If stock is available, proceed to increase quantity
       const newQuantity = currentQuantity + 1;
 
-      if (existingCart[0].productSalePrice) {
+      if (productSalePrice) {
         const newSalePrice = parseFloat(
-          (
-            existingCart[0].productSalePrice +
-            existingCart[0].productSalePrice / currentQuantity
-          ).toFixed(2)
+          (productSalePrice * newQuantity).toFixed(2)
+        );
+        const newRegularPrice = parseFloat(
+          (productPrice * newQuantity).toFixed(2)
         );
 
         const updated = await db
@@ -101,34 +101,32 @@ export const POST = async (req: NextRequest) => {
           .set({
             quantity: newQuantity,
             productSalePrice: newSalePrice,
+            productPrice: newRegularPrice,
           })
           .where(eq(cartTable.id, existingCart[0].id))
           .returning();
 
         return successResponse("Item quantity updated!", true, 200, updated[0]);
       } else {
-        const newPrice = parseFloat(
-          (
-            existingCart[0].productPrice +
-            existingCart[0].productPrice / currentQuantity
-          ).toFixed(2)
-        );
+        const newPrice = parseFloat((productPrice * newQuantity).toFixed(2));
 
-        await db
+        const updated = await db
           .update(cartTable)
           .set({
             quantity: newQuantity,
             productPrice: newPrice,
           })
-          .where(eq(cartTable.id, existingCart[0].id));
+          .where(eq(cartTable.id, existingCart[0].id))
+          .returning();
 
-        return successResponse(
-          "Item successfully added to your cart!",
-          true,
-          200
-        );
+        return successResponse("Item quantity updated!", true, 200, updated[0]);
       }
     } else {
+      const initialPrice = parseFloat(productPrice.toFixed(2));
+      const initialSalePrice = productSalePrice
+        ? parseFloat(productSalePrice.toFixed(2))
+        : null;
+
       const newCart = await db
         .insert(cartTable)
         .values({
@@ -136,8 +134,8 @@ export const POST = async (req: NextRequest) => {
           productId,
           productTitle,
           productImage,
-          productPrice,
-          productSalePrice,
+          productPrice: initialPrice,
+          productSalePrice: initialSalePrice,
           quantity,
           productStock,
         })

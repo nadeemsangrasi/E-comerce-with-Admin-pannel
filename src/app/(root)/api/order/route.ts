@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { orderTable } from "@/db/schema";
+import { orderItemTable, orderTable } from "@/db/schema";
 import { errorResponse } from "@/utils/errorResponse";
 import { isAdmin } from "@/utils/isAdmin";
 import { successResponse } from "@/utils/successResponse";
@@ -32,11 +32,18 @@ export const DELETE = async (req: NextRequest) => {
       .where(eq(orderTable.id, orderId as unknown as number))
       .returning();
 
+    const deleteOrderItem = await db
+      .delete(orderItemTable)
+      .where(eq(orderItemTable.orderId, orderId as unknown as number))
+      .returning();
     if (deletedorder.length === 0) {
       return errorResponse("order not found", false, 404);
-    } else {
-      return successResponse("order deleted successfully", true, 200);
     }
+    if (deleteOrderItem.length === 0) {
+      return errorResponse("order items not found", false, 404);
+    }
+
+    return successResponse("order deleted successfully", true, 200);
   } catch (error) {
     const err = error as Error;
     return errorResponse(err.message, false, 500);

@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useProductContext } from "@/contexts/productsStore/ProductStore";
+import { slugify } from "@/utils/slugify";
 import axios, { AxiosError } from "axios";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -27,9 +28,13 @@ export function NewCategoryBrandDialog({ label }: { label: string }) {
       setLoading(true);
       const res =
         label === "brand"
-          ? await axios.post("http://localhost:3000/api/brand", { name: value })
-          : await axios.post("http://localhost:3000/api/category", {
+          ? await axios.post(`${process.env.NEXT_PUBLIC_DOMAIN}/api/brand`, {
               name: value,
+              slug: slugify(value),
+            })
+          : await axios.post(`${process.env.NEXT_PUBLIC_DOMAIN}/api/category`, {
+              name: value,
+              slug: slugify(value),
             });
       if (res.status !== 200) {
         console.error(res.data.message);
@@ -44,8 +49,9 @@ export function NewCategoryBrandDialog({ label }: { label: string }) {
       toast.success(res.data.message);
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error(axiosError.message);
-      toast.error(axiosError.message);
+      console.error("Failed to submit review", axiosError);
+      const errorMessage = axiosError?.response?.data as { message: string };
+      toast.error(errorMessage?.message || "An error occurred");
     } finally {
       setLoading(false);
       setOpen(false);

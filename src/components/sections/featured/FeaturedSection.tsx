@@ -1,43 +1,30 @@
 import Heading from "@/components/shared/Heading";
 import ProductCard from "@/components/shared/ProductCard";
 import Wrapper from "@/components/shared/Wrapper";
+import { fetchProducts } from "@/lib/fetchAllProducts";
 import { IProduct } from "@/types/types";
-import axios from "axios";
+
 import React from "react";
 
 const FeaturedSection = async () => {
-  const res = await axios.get("http://localhost:3000/api/product");
-  const products = await Promise.all(
-    res.data.data.map(async (product: IProduct) => {
-      const imgRes = await axios.get(
-        "http://localhost:3000/api/product-images?productId=" + product.id
-      );
-      const images = imgRes.data.data || [];
-      if (product.isFeatured) {
-        return {
-          id: product.id,
-          title: product.title,
-          description: product.description,
-          category: product.category,
-          brand: product.brand,
-          price: product.price,
-          totalStock: product.totalStock,
-          salePrice: product.salePrice,
-          isFeatured: product.isFeatured,
-          isArchived: product.isArchived,
-          images,
-        };
-      }
-    })
-  );
+  const products = await fetchProducts();
+
   return (
     <Wrapper>
       <Heading label="Featured Products" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-16">
         {products.length > 0 &&
-          products.map((product: IProduct) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          products.map(
+            (product: IProduct) =>
+              product.isFeatured &&
+              !product.isArchive && (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isUserSide={true}
+                />
+              )
+          )}
       </div>
     </Wrapper>
   );

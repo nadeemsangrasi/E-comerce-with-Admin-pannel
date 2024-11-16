@@ -1,8 +1,9 @@
 import { db } from "@/db";
 import { orderItemTable, orderTable, cartTable } from "@/db/schema";
 import { stripe } from "@/lib/stripe";
+import { ICart } from "@/types/types";
 import { errorResponse } from "@/utils/errorResponse";
-import { isAdmin } from "@/utils/isAdmin";
+
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
@@ -19,8 +20,10 @@ export const OPTIONS = async () => {
 };
 
 export const POST = async (req: NextRequest) => {
-  isAdmin();
-
+  const { userId } = auth();
+  if (!userId) {
+    return errorResponse("user unauthenticated", false, 403);
+  }
   const { cartIds } = await req.json();
   if (!cartIds || cartIds.length === 0) {
     return errorResponse("all fields are required", false, 400);
@@ -29,18 +32,18 @@ export const POST = async (req: NextRequest) => {
   try {
     // Fetch carts in parallel
     const carts = await Promise.all(
-      cartIds.map(async (id: any) => {
+      cartIds.map(async (id: string) => {
         const cart = await db
           .select()
           .from(cartTable)
-          .where(eq(cartTable.id, id));
+          .where(eq(cartTable.id, id as unknown as number));
 
         return cart[0];
       })
     );
 
     let totalPrice = 0;
-    const products = carts.map((cart: any) => {
+    const products = carts.map((cart: ICart) => {
       const price = cart?.productSalePrice || cart?.productPrice;
       totalPrice += price * (cart?.quantity || 1); // Sum up total price
 
@@ -48,7 +51,7 @@ export const POST = async (req: NextRequest) => {
     });
     // Prepare line items for Stripe Checkout
     const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] =
-      carts.map((cart: any) => ({
+      carts.map((cart: ICart) => ({
         quantity: 1,
         price_data: {
           currency: "usd",
@@ -64,7 +67,7 @@ export const POST = async (req: NextRequest) => {
     const order = await db
       .insert(orderTable)
       .values({
-        userId: "clerk_4",
+        userId: userId,
         isPaid: false,
         totalPrice: totalPrice.toString(),
         products: JSON.stringify(products),
@@ -72,12 +75,14 @@ export const POST = async (req: NextRequest) => {
       .returning();
 
     await Promise.all(
-      carts.map(async (cart: any) => {
+      carts.map(async (cart: ICart) => {
         if (cart?.productId) {
           await db.insert(orderItemTable).values({
             orderId: order[0]?.id,
-            productId: cart.productId,
-            quantity: cart?.quantity || 1,
+            productId: cart.productId as unknown as number,
+            quantity: (cart?.quantity as unknown as number) || 1,
+            price: cart.productPrice,
+            salePrice: cart.productSalePrice,
           });
         } else {
           console.error(
@@ -94,8 +99,8 @@ export const POST = async (req: NextRequest) => {
       phone_number_collection: {
         enabled: true,
       },
-      success_url: `${process.env.public_domain}/cart?success=1`,
-      cancel_url: `${process.env.public_domain}/cart?cancel=1`,
+      success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/carts?success=1`,
+      cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/carts?success=0`,
       metadata: {
         orderId: order[0]?.id,
       },

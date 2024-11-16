@@ -16,7 +16,7 @@ export function SelectItem({
   setValue,
 }: {
   selectLabel: string;
-  data: { label: string; value: string }[];
+  data: { name: string }[];
   value: string;
   setValue: (value: string) => void;
 }) {
@@ -29,8 +29,8 @@ export function SelectItem({
         <SelectGroup>
           <SelectLabel>{selectLabel}</SelectLabel>
           {data.map((item) => (
-            <UiSelectItem key={item.value} value={item.value}>
-              {item.label}
+            <UiSelectItem key={item.name} value={item.name}>
+              {item.name}
             </UiSelectItem>
           ))}
         </SelectGroup>

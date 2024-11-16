@@ -29,51 +29,47 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
   const [brands, setBrands] = useState<ICategoryBrand[]>([]);
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [orderLoading, setOrderLoading] = useState(false);
+  const { user } = useUser();
+  const role = user?.publicMetadata?.role;
   useEffect(() => {
     const fetcher = async () => {
+      if (role !== "admin") {
+        return;
+      }
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:3000/api/product");
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_DOMAIN}/api/product`
+        );
+
         if (res.status !== 200) {
           console.error(res.data.message);
           toast.error(res.data.message);
         }
-        const productWithImages = await Promise.all(
-          res.data.data.map(async (product: IProduct) => {
-            const imgRes = await axios.get(
-              "/api/product-images?productId=" + product.id
-            );
-            const images = imgRes.data.data || [];
-            return {
-              id: product.id,
-              title: product.title,
-              description: product.description,
-              category: product.category,
-              brand: product.brand,
-              price: product.price,
-              totalStock: product.totalStock,
-              salePrice: product.salePrice,
-              isFeatured: product.isFeatured,
-              isArchived: product.isArchived,
-              images,
-            };
-          })
-        );
 
-        setProducts(productWithImages.sort((a, b) => a.id - b.id));
+        setProducts(
+          res.data.data.sort(
+            (a: { id: number }, b: { id: number }) => a.id - b.id
+          )
+        );
       } catch (error) {
         const axiosError = error as AxiosError;
-        console.error(axiosError.message);
-        toast.error(axiosError.message);
+        console.error(axiosError);
       } finally {
         setLoading(false);
       }
     };
     fetcher();
     const fetchCategory = async () => {
+      if (role !== "admin") {
+        return;
+      }
       try {
         setCatLoading(true);
-        const res = await axios.get("http://localhost:3000/api/category");
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_DOMAIN!}/api/category`
+        );
+
         if (res.status !== 200) {
           console.error(res.data.message);
           toast.error(res.data.message);
@@ -82,16 +78,20 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       } catch (error) {
         const axiosError = error as AxiosError;
         console.error(axiosError.message);
-        toast.error(axiosError.message);
       } finally {
         setCatLoading(false);
       }
     };
     fetchCategory();
     const fetchBrands = async () => {
+      if (role !== "admin") {
+        return;
+      }
       try {
         setBrandLoading(true);
-        const res = await axios.get("http://localhost:3000/api/brand");
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_DOMAIN}/api/brand`
+        );
         if (res.status !== 200) {
           console.error(res.data.message);
           toast.error(res.data.message);
@@ -100,43 +100,45 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       } catch (error) {
         const axiosError = error as AxiosError;
         console.error(axiosError.message);
-        toast.error(axiosError.message);
       } finally {
         setBrandLoading(false);
       }
     };
     fetchBrands();
-    // const fetchOrders = async () => {
-    //   try {
-    //     setOrderLoading(true);
-    //     const res = await axios.get("http://localhost:3000/api/order");
-    //     const updatedOrders = res.data.data.map((item: IOrder) => {
-    //       const products = item.products.join(",");
-    //       return {
-    //         ...item,
-    //         products: products,
-    //       };
-    //     });
-    //     if (res.status !== 200) {
-    //       console.error(res.data.message);
-    //       toast.error(res.data.message);
-    //     }
-    //     setOrders(updatedOrders);
-    //   } catch (error) {
-    //     const axiosError = error as AxiosError;
-    //     console.error(axiosError.message);
-    //     toast.error(axiosError.message);
-    //   } finally {
-    //     setOrderLoading(false);
-    //   }
-    // };
-    // fetchOrders();
-  }, []);
+    const fetchOrders = async () => {
+      if (role !== "admin") {
+        return;
+      }
+      try {
+        setOrderLoading(true);
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order`
+        );
+        const updatedOrders = res.data.data.map((item: IOrder) => {
+          const products = item.products.join(",");
+          return {
+            ...item,
+            products: products,
+          };
+        });
+        if (res.status !== 200) {
+          console.error(res.data.message);
+          toast.error(res.data.message);
+        }
+        setOrders(updatedOrders);
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error(axiosError.message);
+      } finally {
+        setOrderLoading(false);
+      }
+    };
+    fetchOrders();
+  }, [role]);
 
   // carts
   const [cart, setCart] = useState<ICart[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
-  const { user } = useUser();
   const [isCartLoading, setIsCartLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -154,82 +156,78 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       try {
         setIsCartLoading(true);
 
-        // Early exit if user ID is undefined
         if (!user?.id) {
-          console.log("User ID is not available yet.");
+          console.log("User ID is not available yet. Emptying cart.");
+          setCart([]);
+          localStorage.removeItem(`cart_${user?.id}`);
+          setIsCartLoading(false);
           return;
         }
 
-        // Immediately load from localStorage
-        const localCart = localStorage.getItem("cart");
-        // Only set from localStorage if desired
-        if (localCart) {
-          // false condition for testing
-          setCart(JSON.parse(localCart));
-        }
+        try {
+          const res = await axios.get(
+            `${process.env.NEXT_PUBLIC_DOMAIN}/api/cart?userId=${user?.id}`
+          );
 
-        // Then fetch from backend and update if different
-        const res = await axios.get(
-          `http://localhost:3000/api/cart?userId=${user?.id}`
-        );
-
-        // Process backend response
-        if (res.status === 200) {
-          if (res.data.data && Array.isArray(res.data.data)) {
+          if (res.status === 200 && res.data.data && res.data.data.length > 0) {
+            console.log("Backend cart loaded:", res.data.data);
             setCart(res.data.data);
-            if (res.data.data.length > 0) {
-              localStorage.setItem("cart", JSON.stringify(res.data.data));
-            } else {
-              localStorage.removeItem("cart");
-            }
+            localStorage.setItem(
+              `cart_${user?.id}`,
+              JSON.stringify(res.data.data)
+            );
           } else {
+            console.log("No cart in backend, removing from localStorage.");
             setCart([]);
-            localStorage.removeItem("cart");
+            localStorage.removeItem(`cart_${user?.id}`);
           }
-        } else {
-          localStorage.removeItem("cart");
+        } catch (backendError) {
+          console.error("Backend fetch failed:", backendError);
+          console.log("Clearing cart due to backend error");
           setCart([]);
+          localStorage.removeItem(`cart_${user?.id}`);
         }
       } catch (error) {
         console.error("Error loading cart:", error);
+        setCart([]);
+        localStorage.removeItem(`cart_${user?.id}`); // Remove localStorage on any error
       } finally {
         setIsCartLoading(false);
       }
     };
 
     loadCart();
-  }, [user]);
+  }, [user?.id]);
   const addToCart = async (item: IProduct) => {
     try {
-      const updatedCart = [
-        ...cart.filter((c) => c.productId !== item.id),
-        { ...item, quantity: 1 },
-      ];
-      setCart(updatedCart);
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      if (!user?.id) {
+        toast.error("Please login to add items to cart");
+        return;
+      }
 
-      const res = await axios.post("http://localhost:3000/api/cart", {
-        userId: user?.id,
-        productId: item.id,
-        productTitle: item.title,
-        productImage: item.images[0].imageUrl,
-        productPrice: item.price,
-        productSalePrice: item.salePrice,
-        quantity: 1,
-        productStock: item.totalStock,
-      });
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/cart`,
+        {
+          userId: user?.id,
+          productId: item.id,
+          productTitle: item.title,
+          productImage: item.images[0].imageUrl,
+          productPrice: item.price,
+          productSalePrice: item.salePrice > 0 ? item.salePrice : 0,
+          quantity: 1,
+          productStock: item.totalStock,
+        }
+      );
 
       if (res.status !== 200) {
         toast.error(res.data.message);
         return;
       }
 
-      if (res.data.message == "Product is out of stock") {
+      if (res.data.message === "Product is out of stock") {
         toast.error(res.data.message);
         return;
       }
-
-      toast.success(res.data.message);
 
       const newItem = res.data.data;
       const updatedCartWithRealData = cart.some(
@@ -239,31 +237,28 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         : [...cart, newItem];
 
       setCart(updatedCartWithRealData);
-      localStorage.setItem("cart", JSON.stringify(updatedCartWithRealData));
+      localStorage.setItem(
+        `cart_${user?.id}`,
+        JSON.stringify(updatedCartWithRealData)
+      );
+      toast.success(res.data.message);
     } catch (error) {
       const axiosError = error as AxiosError;
-
-      setCart(cart);
-      localStorage.setItem("cart", JSON.stringify(cart));
-      toast.error(axiosError.message);
+      console.error(axiosError);
+      const errorMessage = axiosError?.response?.data as { message: string };
+      toast.error(errorMessage?.message || "An error occurred");
     }
   };
 
   const removeFromCart = async (itemId: string) => {
     try {
-      const cartIndex = cart.findIndex((cart: ICart) => cart.id === itemId);
-
-      if (cartIndex === -1) {
-        console.log("Item not found in cart");
+      if (!user?.id) {
+        toast.error("Please login to remove items from cart");
         return;
       }
 
-      const updatedCart = cart.filter((item: ICart) => item.id !== itemId);
-      setCart(updatedCart);
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-
       const res = await axios.delete(
-        `http://localhost:3000/api/cart?userId=${user?.id}&cartId=${itemId}`
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/cart?userId=${user?.id}&cartId=${itemId}`
       );
 
       if (res.status !== 200) {
@@ -271,12 +266,34 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         return;
       }
 
+      // If backend removal successful, update local state and storage
+      const updatedCart = cart.filter((item: ICart) => item.id !== itemId);
+      setCart(updatedCart);
+
+      if (updatedCart.length > 0) {
+        localStorage.setItem(`cart_${user?.id}`, JSON.stringify(updatedCart));
+      } else {
+        localStorage.removeItem(`cart_${user?.id}`);
+      }
+
       toast.success(res.data.message);
     } catch (error) {
       const axiosError = error as AxiosError;
-      toast.error(axiosError.message);
+      console.error(axiosError);
+      const errorMessage = axiosError?.response?.data as { message: string };
+      toast.error(errorMessage?.message || "An error occurred");
     }
   };
+
+  // Optional: Add a cleanup effect to handle user logout
+  useEffect(() => {
+    return () => {
+      if (!user?.id) {
+        setCart([]);
+        localStorage.removeItem(`cart_${user?.id}`);
+      }
+    };
+  }, [user?.id]);
 
   const handleCartDecrement = async (id: string) => {
     const cartIndex = cart.findIndex((cart: ICart) => cart.id === id);
@@ -322,11 +339,14 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
     try {
-      const res = await axios.patch("/api/cart", {
-        reqType: "decrement",
-        cartId: id,
-        userId: user?.id,
-      });
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/cart`,
+        {
+          reqType: "decrement",
+          cartId: id,
+          userId: user?.id,
+        }
+      );
       if (res.status !== 200) {
         // Revert changes if API call fails
         const revertCart = cart.map((cart: ICart) =>
@@ -361,7 +381,10 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
 
       toast.success(res.data.message);
     } catch (error) {
-      console.error("Error decrementing cart quantity", error);
+      const axiosError = error as AxiosError;
+      console.error(axiosError);
+      const errorMessage = axiosError?.response?.data as { message: string };
+      toast.error(errorMessage?.message || "An error occurred");
     }
   };
 
@@ -408,11 +431,14 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
     try {
-      const res = await axios.patch("/api/cart", {
-        reqType: "increment",
-        cartId: id,
-        userId: user?.id,
-      });
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/cart`,
+        {
+          reqType: "increment",
+          cartId: id,
+          userId: user?.id,
+        }
+      );
       if (res.status !== 200) {
         // Revert changes if API call fails
         const revertCart = cart.map((cart: ICart) =>
@@ -447,7 +473,10 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
 
       toast.success(res.data.message);
     } catch (error) {
-      console.error("Error incrementing cart quantity", error);
+      const axiosError = error as AxiosError;
+      console.error(axiosError);
+      const errorMessage = axiosError?.response?.data as { message: string };
+      toast.error(errorMessage?.message || "An error occurred");
     }
   };
 

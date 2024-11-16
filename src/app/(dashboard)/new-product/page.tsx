@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SelectItem } from "@/components/shared/SelectItem";
-import { brand, category } from "@/data/data";
+
 import { CheckBox } from "@/components/shared/CheckBox";
 import { Button } from "@/components/ui/button";
 import UploadImage from "@/components/shared/UploadImage";
@@ -25,15 +25,17 @@ import axios, { AxiosError } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useProductContext } from "@/contexts/productsStore/ProductStore";
 import { IProduct } from "@/types/types";
+import { slugify } from "@/utils/slugify";
 
 type CreateProductFormData = z.infer<typeof createProductSchema>;
 
 const NewProduct = () => {
   const searchParams = useSearchParams();
   const productId = searchParams.get("productId");
-  const { products, setProducts } = useProductContext();
+  const { products, setProducts, categories, brands } = useProductContext();
   const [images, setImages] = useState<string[]>([]);
   const [isSubmiting, setIsSubmitting] = useState(false);
+
   const router = useRouter();
 
   const product: IProduct | undefined = products.find(
@@ -47,6 +49,8 @@ const NewProduct = () => {
       description: product?.description || "",
       category: product?.category || "",
       brand: product?.brand || "",
+      catSlug: product?.catSlug || "",
+      brandSlug: product?.brandSlug || "",
       price: product ? Number(product.price) : 99.9,
       salePrice: product ? Number(product.salePrice) : 0,
       totalStock: product ? Number(product.totalStock) : 1,
@@ -54,6 +58,7 @@ const NewProduct = () => {
       isFeatured: product?.isFeatured || false,
     },
   });
+
   useEffect(() => {
     if (product) {
       setImages(product.images.map((img) => img.imageUrl));
@@ -65,8 +70,17 @@ const NewProduct = () => {
       setIsSubmitting(true);
       try {
         const res = productId
-          ? await axios.patch("/api/product", { productId, ...data })
-          : await axios.post("/api/product", data);
+          ? await axios.patch("/api/product", {
+              ...data,
+              productId,
+              brandSlug: slugify(data.brand),
+              catSlug: slugify(data.category),
+            })
+          : await axios.post("/api/product", {
+              ...data,
+              brandSlug: slugify(data.brand),
+              catSlug: slugify(data.category),
+            });
 
         if (res.status !== 200) {
           console.error(res.data.message);
@@ -121,12 +135,13 @@ const NewProduct = () => {
           return updatedProducts;
         });
 
+        router.replace("/admin-products");
         toast.success(res.data.message);
-        router.replace("/products");
       } catch (error) {
-        const AxiosError = error as AxiosError;
-        console.error(AxiosError.message);
-        toast.error(AxiosError.message);
+        const axiosError = error as AxiosError;
+        console.error(axiosError);
+        const errorMessage = axiosError?.response?.data as { message: string };
+        toast.error(errorMessage?.message || "An error occurred");
       } finally {
         setIsSubmitting(false);
         setImages([]);
@@ -155,10 +170,7 @@ const NewProduct = () => {
         <div className="pt-3 w-3/5">
           <FormProvider {...form}>
             {" "}
-            <form
-              onSubmit={form.handleSubmit(onCreateProductSubmit)}
-              key={productId || "new"}
-            >
+            <form onSubmit={form.handleSubmit(onCreateProductSubmit)}>
               {/* Title and Total Stock Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormField
@@ -313,7 +325,7 @@ const NewProduct = () => {
                         <FormControl>
                           <SelectItem
                             selectLabel="Select Category"
-                            data={category}
+                            data={categories}
                             value={field.value}
                             setValue={field.onChange}
                           />
@@ -333,7 +345,7 @@ const NewProduct = () => {
                         <FormControl>
                           <SelectItem
                             selectLabel="Select Brand"
-                            data={brand}
+                            data={brands}
                             value={field.value}
                             setValue={field.onChange}
                           />
@@ -345,7 +357,13 @@ const NewProduct = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full mt-5">
+              <Button
+                type="submit"
+                className="w-full mt-5"
+                disabled={
+                  isSubmiting || !form.formState.isValid || images.length === 0
+                }
+              >
                 {isSubmiting
                   ? productId
                     ? "Saving..."
@@ -356,7 +374,6 @@ const NewProduct = () => {
               </Button>
             </form>
           </FormProvider>{" "}
-          {/* Ensure FormProvider wraps all form components */}
         </div>
       </div>
     </DashboardPagesWrapper>

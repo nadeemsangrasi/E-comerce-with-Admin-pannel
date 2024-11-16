@@ -1,4 +1,4 @@
-import { ICart, IProduct } from "@/types/types";
+import { ICart } from "@/types/types";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,7 +18,7 @@ const CartCard = ({
   return (
     <div
       key={cart?.id}
-      className="md:flex gap-6 w-full lg:w-full sm:w-3/4 mx-auto bg-primary-gray my-4 rounded-md px-4"
+      className="md:flex gap-6 w-full lg:w-full sm:w-3/4 mx-auto bg-primary-gray dark:bg-gray-800 my-4 rounded-md px-4 pb-4 lg:pb-0"
     >
       <div>
         <Link href={`/products/${cart?.id}`}>

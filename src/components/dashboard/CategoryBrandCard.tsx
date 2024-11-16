@@ -1,4 +1,4 @@
-import { Edit, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 import React from "react";
 import dayjs from "dayjs";
 import { useProductContext } from "@/contexts/productsStore/ProductStore";
@@ -16,32 +16,57 @@ const CategoryBrandCard = ({
   const { brands, setBrands, categories, setCategories } = useProductContext();
 
   const handleDeleteCategoryBrand = async (cardType: string, id: string) => {
-    try {
-      const res =
-        cardType === "brand"
-          ? await axios.delete("http://localhost:3000/api/brand?brandId=" + id)
-          : await axios.delete(
-              "http://localhost:3000/api/category?categoryId=" + id
-            );
-      if (res.status !== 200) {
-        console.error(res.data.message);
-        toast.error(res.data.message);
-      }
-      if (cardType === "brand") {
-        setBrands(brands.filter((brand: ICategoryBrand) => brand.id !== id));
-        toast.success(res.data.message);
-        return;
-      }
+    const previousBrands = [...brands];
+    const previousCategories = [...categories];
+
+    if (cardType === "brand") {
+      setBrands(brands.filter((brand: ICategoryBrand) => brand.id !== id));
+    } else {
       setCategories(
         categories.filter((category: ICategoryBrand) => category.id !== id)
       );
-      toast.success(res.data.message);
+    }
+
+    try {
+      const response =
+        cardType === "brand"
+          ? await axios.delete(
+              `${process.env.NEXT_PUBLIC_DOMAIN}/api/brand?brandId=${id}`
+            )
+          : await axios.delete(
+              `${process.env.NEXT_PUBLIC_DOMAIN}/api/category?categoryId=${id}`
+            );
+
+      if (response.status !== 200) {
+        const errorMessage = response.data.message;
+        console.error(errorMessage);
+        toast.error(errorMessage);
+
+        if (cardType === "brand") {
+          setBrands(previousBrands);
+        } else {
+          setCategories(previousCategories);
+        }
+        return;
+      }
+
+      toast.success(response.data.message);
     } catch (error) {
+      if (cardType === "brand") {
+        setBrands(previousBrands);
+      } else {
+        setCategories(previousCategories);
+      }
+
       const axiosError = error as AxiosError;
-      console.error(axiosError.message);
-      toast.error(axiosError.message);
+      console.error(axiosError);
+      const errorMessage =
+        (axiosError?.response?.data as { message: string })?.message ||
+        "An error occurred";
+      toast.error(errorMessage);
     }
   };
+
   return (
     <div className="w-[250px] border dark:border-gray-300 rounded-lg p-4 mx-auto sm:mx-0 space-y-2">
       <div>

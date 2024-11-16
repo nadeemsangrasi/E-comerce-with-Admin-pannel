@@ -8,7 +8,8 @@ import {
 import { stripe } from "@/lib/stripe";
 import { errorResponse } from "@/utils/errorResponse";
 import { successResponse } from "@/utils/successResponse";
-import { and, eq } from "drizzle-orm";
+
+import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 
 export const POST = async (req: Request) => {
@@ -60,13 +61,11 @@ export const POST = async (req: Request) => {
           })
           .where(eq(orderTable.id, orderId));
 
-        // Fetch order items
         const orderItems = await db
           .select()
           .from(orderItemTable)
           .where(eq(orderItemTable.orderId, orderId));
 
-        // Process each order item
         await Promise.all(
           orderItems.map(async (item) => {
             const products = await db
@@ -89,15 +88,9 @@ export const POST = async (req: Request) => {
               })
               .where(eq(productTable.id, item.productId));
 
-            // Remove the item from the cart
             await db
               .delete(cartTable)
-              .where(
-                and(
-                  eq(cartTable.userId, "clerk_4"),
-                  eq(cartTable.productId, item.productId)
-                )
-              );
+              .where(eq(cartTable.productId, item.productId));
           })
         );
 

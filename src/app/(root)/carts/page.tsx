@@ -1,12 +1,21 @@
 "use client";
 
 import Wrapper from "@/components/shared/Wrapper";
-import CartCard from "./CartCard";
-import { Loader2 } from "lucide-react";
+
 import { useProductContext } from "@/contexts/productsStore/ProductStore";
-import { ICart } from "@/types/types";
+import { ICart, IProduct } from "@/types/types";
+import axios, { AxiosError } from "axios";
+import toast from "react-hot-toast";
+import Loader from "@/components/shared/Loader";
+import CartCard from "./CartCard";
+import ExploreMoreCard from "../products/ExploreMoreCard";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 
 const CartPage = () => {
+  const searchParams = useSearchParams();
+  const checkoutStatus = searchParams.get("success");
   const {
     cart,
     removeFromCart,
@@ -14,123 +23,45 @@ const CartPage = () => {
     isCartLoading,
     handleCartIncrement,
     handleCartDecrement,
+    products,
   } = useProductContext();
+  const { user } = useUser();
+  const handleCheckOut = async () => {
+    try {
+      const response = await axios.post("/api/checkout", {
+        cartIds: cart.map((item: ICart) => item.id),
+      });
 
-  // useEffect(() => {
-  //   const fetchCartData = async () => {
-  //     setIsCartLoading(true);
-  //     const res = await fetch("/api/cart");
-  //     const data = await res.json();
-  //     setcart(data.cart || []);
-  //     setIsCartLoading(false);
-  //   };
-  //   fetchCartData();
-  // }, []);
+      window.location = response.data.url;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error("Failed to submit review", axiosError);
+      const errorMessage = axiosError?.response?.data as { message: string };
+      toast.error(errorMessage?.message || "An error occurred");
+    }
+  };
 
-  // const deleteCart = async (id: string) => {
-  //   const cartIndex = cart.findIndex((cart) => cart.id === id);
-  //   if (cartCount !== 0) {
-  //     setCartCount(
-  //       (cartCount: number) => cartCount - cart[cartIndex].quantity
-  //     );
-  //   }
-  //   setcart(cart.filter((cart: IProduct) => cart.id !== id));
+  useEffect(() => {
+    if (checkoutStatus?.toString() === "1") {
+      localStorage.removeItem(`cart_${user?.id}`);
+      // clearCart(); // Clears the cart from context state
+      toast.success("Order successful. Cart cleared.");
+    } else if (checkoutStatus?.toString() === "0") {
+      toast.error("Order cancelled");
+    }
+  }, [checkoutStatus]);
 
-  //   try {
-  //     const res = await fetch("/api/cart", {
-  //       method: "DELETE",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ id }),
-  //     });
-  //     const data = await res.json();
-  //   } catch (error) {
-  //     console.error("Error deleting product from cart", error);
-  //   }
-  // };
-
-  // const handleCartDecrement = async (id: string) => {
-  //   const cartIndex = cart.findIndex((cart) => cart.id === id);
-  //   if (cartIndex === -1) {
-  //     console.error("Product not found in cart");
-  //     return;
-  //   }
-
-  //   if (cart[cartIndex].quantity > 1) {
-  //     if (cartCount > 0) {
-  //       setCartCount(cartCount - 1);
-  //     }
-  //     const updatedCart = cart.map((cart, index) =>
-  //       index === cartIndex
-  //         ? {
-  //             ...cart,
-  //             quantity: cart.quantity - 1,
-  //             price: parseFloat(
-  //               (cart.price - cart.price / cart.quantity).toFixed(2)
-  //             ),
-  //           }
-  //         : cart
-  //     );
-  //     setcart(updatedCart);
-
-  //     try {
-  //       const res = await fetch(`/api/cart`, {
-  //         method: "PATCH",
-  //         body: JSON.stringify({ id, type: "decrement" }),
-  //       });
-  //       const data = await res.json();
-  //       console.log(data.message);
-  //     } catch (error) {
-  //       console.error("Error incrementing cart quantity", error);
-  //     }
-  //   }
-  // };
-
-  // const handleCartIncrement = async (id: string) => {
-  //   setCartCount(cartCount + 1);
-  //   const cartIndex = cart.findIndex((cart: IProduct) => cart.id === id);
-  //   if (cartIndex === -1) {
-  //     console.error("cart not found for incremention");
-  //   }
-  //   const upadatedcart = cart.map((cart: IProduct) =>
-  //     cart.id === id
-  //       ? {
-  //           ...cart,
-  //           quantity: cart.quantity + 1,
-  //           price: parseFloat(
-  //             (cart.price + cart.price / cart.quantity).toFixed(2)
-  //           ),
-  //         }
-  //       : cart
-  //   );
-  //   setcart(upadatedcart);
-
-  //   try {
-  //     const res = await fetch("/api/cart", {
-  //       method: "PATCH",
-  //       body: JSON.stringify({ id, type: "increment" }),
-  //     });
-  //     const data = await res.json();
-  //     console.log(data.message);
-  //   } catch (error) {
-  //     console.error("Error incrementing cart quantity", error);
-  //   }
-  // };
   return (
     <Wrapper>
       <div className="py-16 ">
         <div className="my-16">
           {isCartLoading ? (
             <div className="flex items-center justify-center py-24 gap-2 flex-wrap">
-              <Loader2 className="h-10 w-10 sm:h-16 sm:w-16 animate-spin text-black " />
-              <h1 className="text-2xl sm:text-5xl font-bold text-black">
-                Loading Products...
-              </h1>
+              <Loader text="Loading carts..." />
             </div>
           ) : (
             <>
-              <h1 className="text-2xl sm:text-3xl font-bold mt-8 text-black">
+              <h1 className="text-2xl sm:text-3xl font-bold mt-8 text-black dark:text-white">
                 Available cart
               </h1>
               <div className="grid lg:grid-cols-2 grid-cols-1 ">
@@ -146,23 +77,44 @@ const CartPage = () => {
                       />
                     ))}
                 </div>
-                <div className="checkout space-y-4 mt-12 w-fit mx-auto h-fit bg-primary-yellow px-8 pb-6 rounded-md">
-                  <h1 className="text-2xl sm:text-3xl font-bold mt-8 ">
-                    Order summary
-                  </h1>
-                  <div className="flex justify-between">
-                    <h2 className="text-xl font-semibold">Quantity</h2>
-                    <h2 className="text-xl font-semibold">
-                      {cart.length} Product
-                    </h2>
+                <div>
+                  <div className="checkout space-y-4 mt-12 w-fit mx-auto h-fit bg-primary-yellow px-8 py-8 rounded-md text-black">
+                    <h1 className="text-2xl sm:text-3xl font-bold  ">
+                      Order summary
+                    </h1>
+                    <div className="flex justify-between">
+                      <h2 className="text-xl font-semibold">Quantity</h2>
+                      <h2 className="text-xl font-semibold">
+                        {cart.length} Product
+                      </h2>
+                    </div>
+                    <div className="flex justify-between">
+                      <h2 className="text-xl font-semibold">Subtotal</h2>
+                      <h2 className="text-xl font-semibold">${totalAmount}</h2>
+                    </div>
+                    <button
+                      className="bg-black text-white  font-bold py-2 px-4 rounded-md mx-auto block my-4"
+                      onClick={handleCheckOut}
+                    >
+                      checkout now
+                    </button>
                   </div>
-                  <div className="flex justify-between">
-                    <h2 className="text-xl font-semibold">Subtotal</h2>
-                    <h2 className="text-xl font-semibold">${totalAmount}</h2>
+                  <div className="w-full  space-y-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center t mt-8 lg:mt-12 pb-6">
+                      Explore More
+                    </h1>
+                    <div className="grid grid-cols-1 gap-4">
+                      {products
+                        ?.slice(0, 5)
+                        .map(
+                          (p: IProduct) =>
+                            p.isFeatured &&
+                            !p.isArchive && (
+                              <ExploreMoreCard key={p?.id} product={p} />
+                            )
+                        )}
+                    </div>
                   </div>
-                  <button className="bg-black text-white  font-bold py-2 px-4 rounded-md mx-auto block my-4">
-                    checkout now
-                  </button>
                 </div>
               </div>
             </>

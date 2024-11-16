@@ -31,6 +31,8 @@ export const productTable = pgTable("product", {
   description: varchar("description", { length: 255 }).notNull(),
   category: varchar("category", { length: 255 }).notNull(),
   brand: varchar("brand", { length: 255 }).notNull(),
+  catSlug: varchar("cat_slug", { length: 255 }).notNull(),
+  brandSlug: varchar("brand_slug", { length: 255 }).notNull(),
   price: integer("price").notNull(),
   salePrice: integer("sale_price"),
   totalStock: integer("total_stock").notNull(),
@@ -43,6 +45,7 @@ export const productTable = pgTable("product", {
     .defaultNow()
     .$onUpdateFn(() => new Date()),
 });
+
 export const productImageTable = pgTable("product_image", {
   id: serial("id").primaryKey(),
   productId: integer("product_id")
@@ -64,6 +67,8 @@ export const reviewTable = pgTable("review", {
   userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => userTable.clerkId, { onDelete: "cascade" }),
+  username: varchar("username", { length: 255 }).notNull(),
+  imageUrl: text("imageurl").notNull(),
   reviewValue: integer("review_value").notNull(),
   reviewMessage: text("review_message"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -76,6 +81,7 @@ export const reviewTable = pgTable("review", {
 export const categoryTable = pgTable("category", {
   id: serial("id").primaryKey(),
   name: varchar("category_name", { length: 255 }).notNull().unique(),
+  slug: varchar("cat_slug", { length: 255 }).notNull().unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -86,6 +92,7 @@ export const categoryTable = pgTable("category", {
 export const brandTable = pgTable("brand", {
   id: serial("id").primaryKey(),
   name: varchar("brand_name", { length: 255 }).notNull().unique(),
+  slug: varchar("brand_slug", { length: 255 }).notNull().unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -122,7 +129,7 @@ export const orderTable = pgTable("order", {
   isPaid: boolean("is_paid").notNull().default(false),
   phone: varchar("phone", { length: 255 }),
   address: varchar("address", { length: 255 }),
-  totalPrice: numeric("total_price").notNull().default(0),
+  totalPrice: numeric("total_price").notNull().default("0"),
   products: json("products").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
@@ -139,6 +146,8 @@ export const orderItemTable = pgTable("order_item", {
   productId: integer("product_id")
     .notNull()
     .references(() => productTable.id, { onDelete: "cascade" }), // Cascade when product is deleted
+  price: integer("price").notNull(),
+  salePrice: integer("sale_price"),
   quantity: integer("quantity").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")

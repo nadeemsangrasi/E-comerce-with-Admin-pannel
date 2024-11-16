@@ -1,8 +1,8 @@
-import NavigateButton from "@/components/shared/NavigateButton";
 import Image from "next/image";
 import React from "react";
 import img from "@/assets/images/sectionsImages/image_12-removebg-preview.png";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 const BannerSection = () => {
   return (
     <div
@@ -23,10 +23,12 @@ const BannerSection = () => {
             Spend minimal $100 get 30% off voucher code for your next purchase
           </p>
           <p className="text-medium text-lg">
-            <span className="font-bold block">1 June - 10 June 2021</span>
+            <span className="font-bold block">1 June - 10 June 2025</span>
             *Terms & Conditions apply
           </p>
-          <Button className="dark:text-white dark:bg-black">Shop Now</Button>
+          <Button className="dark:text-white dark:bg-black">
+            <Link href={"/products"}>Shop Now</Link>
+          </Button>
         </div>
       </div>
     </div>

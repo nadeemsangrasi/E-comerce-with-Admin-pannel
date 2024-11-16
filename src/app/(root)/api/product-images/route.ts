@@ -7,34 +7,6 @@ import { successResponse } from "@/utils/successResponse";
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
-export const GET = async (req: NextRequest) => {
-  const productId = req.nextUrl.searchParams.get("productId");
-  if (!productId) {
-    return errorResponse("product id required", false, 403);
-  }
-
-  try {
-    const productImages = await db
-      .select()
-      .from(productImageTable)
-      .where(eq(productImageTable.productId, productId as unknown as number));
-
-    if (productImages.length === 0) {
-      return errorResponse("product images not found", false, 404);
-    }
-
-    return successResponse(
-      "product images fetched successfully",
-      true,
-      200,
-      productImages
-    );
-  } catch (error) {
-    const err = error as Error;
-    return errorResponse(err.message, false, 500);
-  }
-};
-
 export const POST = async (req: NextRequest) => {
   isAdmin();
 
@@ -45,7 +17,7 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const productImages = await Promise.all(
-      images.map(async (image: any) => {
+      images.map(async (image: { productId: number; imageUrl: string }) => {
         const productImage = await db
           .insert(productImageTable)
           .values({
@@ -82,7 +54,7 @@ export const PATCH = async (req: NextRequest) => {
       .where(eq(productImageTable.productId, images[0].productId));
 
     const updateImage = await Promise.all(
-      images.map(async (image: any) => {
+      images.map(async (image: { productId: number; imageUrl: string }) => {
         const img = await db
           .insert(productImageTable)
           .values({

@@ -11,7 +11,7 @@ const NewArrivalCard = ({
   title: string;
 }) => {
   return (
-    <div className="w-[400px] mx-auto">
+    <div className="w-[250px] sm:w-[400px] mx-auto">
       <div>
         <Image src={img} alt="image" />
       </div>

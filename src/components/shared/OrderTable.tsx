@@ -64,8 +64,9 @@ export function OrderTable() {
       toast.success(res.data.message);
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error(axiosError.message);
-      toast.error(axiosError.message);
+      console.error(axiosError);
+      const errorMessage = axiosError?.response?.data as { message: string };
+      toast.error(errorMessage?.message || "An error occurred");
     }
   };
 
@@ -211,7 +212,7 @@ export function OrderTable() {
                   colSpan={columns.length}
                   className="text-center h-24"
                 >
-                  <Loader loading={orderLoading} text="Loading orders..." />
+                  {loading && <Loader text="Loading orders..." />}
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows.length ? (

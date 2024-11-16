@@ -11,7 +11,7 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="flex items-center justify-center h-screen mx-16">
+    <div className="flex items-center justify-center mx-16 py-5">
       <UserProfile path="/accounts" />
     </div>
   );
