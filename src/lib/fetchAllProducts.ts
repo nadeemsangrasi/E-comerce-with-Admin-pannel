@@ -3,7 +3,12 @@ import axios, { AxiosError } from "axios";
 export const fetchProducts = async () => {
   try {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_DOMAIN}/api/product`
+      `${process.env.NEXT_PUBLIC_DOMAIN}/api/product`,
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      }
     );
 
     if (res.status !== 200) {

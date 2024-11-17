@@ -41,7 +41,12 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_DOMAIN}/api/product`
+          `${process.env.NEXT_PUBLIC_DOMAIN}/api/product`,
+          {
+            headers: {
+              "Cache-Control": "no-store",
+            },
+          }
         );
 
         if (res.status !== 200) {
@@ -69,7 +74,12 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       try {
         setCatLoading(true);
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_DOMAIN!}/api/category`
+          `${process.env.NEXT_PUBLIC_DOMAIN!}/api/category`,
+          {
+            headers: {
+              "Cache-Control": "no-store",
+            },
+          }
         );
 
         if (res.status !== 200) {
@@ -92,7 +102,12 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       try {
         setBrandLoading(true);
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_DOMAIN}/api/brand`
+          `${process.env.NEXT_PUBLIC_DOMAIN}/api/brand`,
+          {
+            headers: {
+              "Cache-Control": "no-store",
+            },
+          }
         );
         if (res.status !== 200) {
           console.error(res.data.message);
@@ -114,7 +129,12 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       try {
         setOrderLoading(true);
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order`
+          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order`,
+          {
+            headers: {
+              "Cache-Control": "no-store",
+            },
+          }
         );
         const updatedOrders = res.data.data.map((item: IOrder) => {
           const products = item.products.join(",");
@@ -168,7 +188,12 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
 
         try {
           const res = await axios.get(
-            `${process.env.NEXT_PUBLIC_DOMAIN}/api/cart?userId=${user?.id}`
+            `${process.env.NEXT_PUBLIC_DOMAIN}/api/cart?userId=${user?.id}`,
+            {
+              headers: {
+                "Cache-Control": "no-store",
+              },
+            }
           );
 
           if (res.status === 200 && res.data.data && res.data.data.length > 0) {
@@ -269,7 +294,6 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         return;
       }
 
-    
       const updatedCart = cart.filter((item: ICart) => item.id !== itemId);
       setCart(updatedCart);
 
@@ -287,7 +311,6 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       toast.error(errorMessage?.message || "An error occurred");
     }
   };
-
 
   useEffect(() => {
     return () => {
@@ -309,9 +332,8 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
 
     if (cartItem.quantity <= 1) {
       toast.error("Minimum quantity reached");
-      return; 
+      return;
     }
-
 
     const updatedCart = cart.map((cart: ICart) =>
       cart.id === id
@@ -351,7 +373,6 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         }
       );
       if (res.status !== 200) {
-       
         const revertCart = cart.map((cart: ICart) =>
           cart.id === id
             ? {
@@ -404,7 +425,6 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       return;
     }
 
-   
     const updatedCart = cart.map((cart: ICart) =>
       cart.id === id
         ? {
@@ -443,7 +463,6 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         }
       );
       if (res.status !== 200) {
-     
         const revertCart = cart.map((cart: ICart) =>
           cart.id === id
             ? {

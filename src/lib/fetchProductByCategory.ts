@@ -4,7 +4,12 @@ import axios, { AxiosError } from "axios";
 export const fetchProductsByCategory = async (catSlug: string) => {
   try {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_DOMAIN}/api/product`
+      `${process.env.NEXT_PUBLIC_DOMAIN}/api/product`,
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      }
     );
 
     const products = res.data.data.filter(

@@ -9,7 +9,6 @@ const ExploreMoreCard = ({ product }: { product: IProduct }): JSX.Element => {
   return (
     <aside className="flex w-full max-w-sm p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-transform transform hover:scale-105 mx-auto">
       <Link href={`/products/${product.id}`} className="flex items-start gap-4">
-        
         {product.images[0] && (
           <Image
             src={product.images[0].imageUrl}
@@ -19,7 +18,7 @@ const ExploreMoreCard = ({ product }: { product: IProduct }): JSX.Element => {
             width={1000}
           />
         )}
-        \
+
         <div className="flex-1 space-y-2">
           <h1 className="text-md font-semibold text-gray-900 dark:text-gray-100 leading-tight">
             {product.title}
