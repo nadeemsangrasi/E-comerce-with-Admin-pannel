@@ -4,7 +4,7 @@ import Wrapper from "@/components/shared/Wrapper";
 import { fetchProductsByCategory } from "@/lib/fetchProductByCategory";
 
 import { IProduct } from "@/types/types";
-
+export const dynamic = "force-dynamic";
 const ProductByCategory = async ({
   params,
 }: {

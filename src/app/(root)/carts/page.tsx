@@ -1,7 +1,7 @@
 "use client";
 
 import Wrapper from "@/components/shared/Wrapper";
-
+export const dynamic = "force-dynamic";
 import { useProductContext } from "@/contexts/productsStore/ProductStore";
 import { ICart, IProduct } from "@/types/types";
 import axios, { AxiosError } from "axios";

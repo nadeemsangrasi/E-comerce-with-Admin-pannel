@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { productTable } from "@/db/schema";
 import { DollarSign, ShoppingBasket, SquareCheck } from "lucide-react";
 import React from "react";
-
+export const dynamic = "force-dynamic";
 const AdminDashboard = async () => {
   const graphData = await getGraphRevenue();
   const totalRevenue = await getTotalRevenue();

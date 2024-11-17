@@ -2,7 +2,7 @@ import CatAndBrandClient from "@/components/shared/CatAndBrandClient";
 import Wrapper from "@/components/shared/Wrapper";
 import { fetchProductsByBrand } from "@/lib/fetchProductsByBrand";
 import { IProduct } from "@/types/types";
-
+export const dynamic = "force-dynamic";
 const ProductByBrand = async ({
   params,
 }: {
