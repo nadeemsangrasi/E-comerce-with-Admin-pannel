@@ -45,7 +45,7 @@ const AllProductsClient = ({ products }: { products: IProduct[] }) => {
   });
   return (
     <div className="max-w-screen-2xl">
-      <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center  mb-10  ">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl yfont-bold text-center  mb-10  ">
         Our Products
       </h1>
       <div className="py-8 px-8">

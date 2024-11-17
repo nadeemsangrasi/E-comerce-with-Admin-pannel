@@ -3,8 +3,8 @@ import ProductCard from "@/components/shared/ProductCard";
 import Wrapper from "@/components/shared/Wrapper";
 import { fetchProducts } from "@/lib/fetchAllProducts";
 import { IProduct } from "@/types/types";
-export const dynamic = "force-dynamic";
 import React from "react";
+export const dynamic = "force-dynamic";
 
 const FeaturedSection = async () => {
   const products = await fetchProducts();

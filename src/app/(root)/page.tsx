@@ -6,7 +6,7 @@ import HomeSection from "@/components/sections/home/HomeSection";
 import NewArrivalSection from "@/components/sections/newArrival/NewArrivalSection";
 import VoucherSection from "@/components/sections/voucehers/VoucherSection";
 import YoungFavouriteSection from "@/components/sections/younFavourite/YounFavouriteSection";
-
+export const dynamic = "force-dynamic";
 export default function Home() {
   return (
     <div>

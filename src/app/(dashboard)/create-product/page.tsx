@@ -54,7 +54,7 @@ const NewProduct = () => {
       price: product ? Number(product.price) : 99.9,
       salePrice: product ? Number(product.salePrice) : 0,
       totalStock: product ? Number(product.totalStock) : 1,
-      isArchived: product?.isArchive || false,
+      isArchive: product?.isArchive || false,
       isFeatured: product?.isFeatured || false,
     },
   });
@@ -294,12 +294,12 @@ const NewProduct = () => {
                 <div className="p-3 border rounded-md">
                   <FormField
                     control={form.control}
-                    name="isArchived"
+                    name="isArchive"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
                           <CheckBox
-                            label="Archived"
+                            label="Archive"
                             value={field.value as boolean}
                             setValue={field.onChange}
                           />
