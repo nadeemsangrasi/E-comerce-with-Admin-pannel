@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fullstack Multi-Vendor E-Commerce with Admin Dashboard
 
-## Getting Started
+A robust fullstack e-commerce platform featuring multi-vendor support, a comprehensive admin panel, and user-friendly functionalities. The project provides seamless shopping experiences and efficient admin controls.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### **Admin Dashboard**
+- **Dark and Light Modes**: Toggle between dark and light themes.
+- **Overview**: Displays sales charts for a particular month, total revenue, total sales, and total products using server actions.
+- **Product Management**:
+  - Add products with multiple images.
+  - Add, edit, or delete categories and brands.
+- **Order Management**:
+  - View all orders, delete orders, and copy order IDs.
+  - Mark order status as "Paid" upon successful payment or "Unpaid" otherwise.
+- **Account Management**: View and manage admin account details.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### **User Side**
+- **Authentication**: 
+  - Login or create an account using Clerk authentication.
+- **Product Browsing**:
+  - View featured sections on the homepage.
+  - Browse products by category or brand.
+  - Sort products by price, newest, oldest, featured, A-Z, Z-A, and more.
+- **Product Details**:
+  - View detailed product pages with multiple images and product information.
+  - Review section for products (users can review only after purchase).
+  - Similar item suggestions.
+- **Account Management**: View and manage user account details.
+- **Shopping Cart**:
+  - Add products to the cart (up to available stock).
+  - Products with zero stock are archived.
+- **Checkout**:
+  - Stripe-powered payment gateway.
+  - Redirects to the Stripe checkout page after cart checkout.
+- **Sales**: Some products may have sale prices.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Technologies Used
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend**: 
+  - [Next.js](https://nextjs.org/) (React Framework)
+  - [shadcn/ui](https://shadcn.dev/) for UI components
+  - [Lucide Icons](https://lucide.dev/) for React icons
+  - [Recharts](https://recharts.org/) for sales and revenue charts
+  - [Day.js](https://day.js.org/) for date manipulation
+- **Authentication**: [Clerk](https://clerk.dev/)
+- **File Uploads**: [Next Cloudinary](https://next-cloudinary.dev/)
+- **Payment Gateway**: [Stripe](https://stripe.com/)
+- **Database**: PostgreSQL with [Drizzle ORM](https://orm.drizzle.team/)
+- **API Handling**: [Axios](https://axios-http.com/)
+- **Deployment**: [Vercel](https://vercel.com/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
