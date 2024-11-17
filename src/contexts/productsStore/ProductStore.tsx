@@ -192,7 +192,7 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       } catch (error) {
         console.error("Error loading cart:", error);
         setCart([]);
-        localStorage.removeItem(`cart_${user?.id}`); // Remove localStorage on any error
+        localStorage.removeItem(`cart_${user?.id}`);
       } finally {
         setIsCartLoading(false);
       }
@@ -269,7 +269,7 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         return;
       }
 
-      // If backend removal successful, update local state and storage
+    
       const updatedCart = cart.filter((item: ICart) => item.id !== itemId);
       setCart(updatedCart);
 
@@ -288,7 +288,7 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   };
 
-  // Optional: Add a cleanup effect to handle user logout
+
   useEffect(() => {
     return () => {
       if (!user?.id) {
@@ -309,10 +309,10 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
 
     if (cartItem.quantity <= 1) {
       toast.error("Minimum quantity reached");
-      return; // Prevent decrement if quantity is 1
+      return; 
     }
 
-    // Optimistically update the frontend cart
+
     const updatedCart = cart.map((cart: ICart) =>
       cart.id === id
         ? {
@@ -351,12 +351,12 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         }
       );
       if (res.status !== 200) {
-        // Revert changes if API call fails
+       
         const revertCart = cart.map((cart: ICart) =>
           cart.id === id
             ? {
                 ...cart,
-                quantity: cart.quantity + 1, // Revert the decrement
+                quantity: cart.quantity + 1,
                 productSalePrice: cart.productSalePrice
                   ? parseFloat(
                       (
@@ -404,7 +404,7 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       return;
     }
 
-    // Optimistically update the frontend cart
+   
     const updatedCart = cart.map((cart: ICart) =>
       cart.id === id
         ? {
@@ -443,12 +443,12 @@ const ProductStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         }
       );
       if (res.status !== 200) {
-        // Revert changes if API call fails
+     
         const revertCart = cart.map((cart: ICart) =>
           cart.id === id
             ? {
                 ...cart,
-                quantity: cart.quantity - 1, // Revert the increment
+                quantity: cart.quantity - 1,
                 productSalePrice: cart.productSalePrice
                   ? parseFloat(
                       (

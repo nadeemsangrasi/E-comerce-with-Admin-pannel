@@ -19,7 +19,7 @@ export function NavSelect({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <span className="bg-transparent hover:bg-transparent p-0 -mt-2 sm:-mt-1 sm:text-xl font-medium hover:underline outline-none cursor-pointer">
+        <span className="bg-transparent hover:bg-transparent p-0 -mt-2 sm:-mt-1 sm:text-xl font-medium  outline-none cursor-pointer">
           {label}
         </span>
       </DropdownMenuTrigger>

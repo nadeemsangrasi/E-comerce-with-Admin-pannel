@@ -9,11 +9,12 @@ import { stripe } from "@/lib/stripe";
 import { errorResponse } from "@/utils/errorResponse";
 import { successResponse } from "@/utils/successResponse";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import Stripe from "stripe";
 
 export const POST = async (req: Request) => {
   const body = await req.text();
+
   const signature = req.headers.get("Stripe-Signature") as string;
   let event: Stripe.Event;
 
@@ -29,7 +30,6 @@ export const POST = async (req: Request) => {
     return errorResponse("Webhook signature verification failed.", false, 400);
   }
 
-  // Handle the event
   try {
     switch (event.type) {
       case "checkout.session.completed":
@@ -46,12 +46,14 @@ export const POST = async (req: Request) => {
         const addressString = addressComponents.filter((a) => a).join(", ");
 
         const orderId = Number(session?.metadata?.orderId);
+        const userId = session?.metadata?.userId;
 
         if (isNaN(orderId)) {
           return errorResponse("Invalid order ID", false, 400);
         }
-
-        // Proceed with the rest of the logic using `orderId`
+        if (!userId) {
+          throw new Error("User ID is null or undefined");
+        }
         await db
           .update(orderTable)
           .set({
@@ -90,24 +92,22 @@ export const POST = async (req: Request) => {
 
             await db
               .delete(cartTable)
-              .where(eq(cartTable.productId, item.productId));
+              .where(
+                and(
+                  eq(cartTable.productId, item.productId),
+                  eq(cartTable.userId, userId)
+                )
+              );
           })
         );
 
         console.log("✅ Order processed successfully.");
         break;
 
-      // Handle other event types if necessary
-      // case 'payment_intent.succeeded':
-      //   // Implement logic if needed
-      //   break;
-
       default:
-        // Unexpected event type
         console.warn(`⚠️ Unhandled event type ${event.type}`);
     }
 
-    // Return a response to acknowledge receipt of the event
     return successResponse("Webhook received.", true, 200);
   } catch (processingError) {
     console.error("❌ Error processing webhook event:", processingError);

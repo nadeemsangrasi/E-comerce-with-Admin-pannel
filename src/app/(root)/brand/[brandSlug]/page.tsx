@@ -1,5 +1,4 @@
 import CatAndBrandClient from "@/components/shared/CatAndBrandClient";
-
 import Wrapper from "@/components/shared/Wrapper";
 import { fetchProductsByBrand } from "@/lib/fetchProductsByBrand";
 import { IProduct } from "@/types/types";

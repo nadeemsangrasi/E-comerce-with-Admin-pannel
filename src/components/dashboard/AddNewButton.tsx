@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 const AddNewButton = () => {
   const router = useRouter();
   const handleAddProduct = () => {
-    router.push("/new-product");
+    router.push("/create-product");
   };
 
   return (

@@ -28,7 +28,7 @@ const AdminDashboard = async () => {
             </span>
           </div>
           <h1 className=" text-2xl tracking-tight font-semibold">
-            {totalRevenue > 0 ? " $+" + totalRevenue : "$" + 0}
+            ${totalRevenue}
           </h1>
         </div>
         <div className=" border dark:border-gray-300 rounded-lg p-4 space-y-2 dark:bg-[#020817]">
@@ -39,7 +39,7 @@ const AdminDashboard = async () => {
             </span>
           </div>
           <h1 className=" text-2xl tracking-tight font-semibold">
-            {totalSales > 0 ? " $+" + totalSales : "$" + 0}
+            +{totalSales}
           </h1>
         </div>
         <div className=" border dark:border-gray-300 rounded-lg p-4 space-y-2 dark:bg-[#020817]">

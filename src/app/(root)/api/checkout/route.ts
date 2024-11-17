@@ -30,7 +30,6 @@ export const POST = async (req: NextRequest) => {
   }
 
   try {
-    // Fetch carts in parallel
     const carts = await Promise.all(
       cartIds.map(async (id: string) => {
         const cart = await db
@@ -45,11 +44,11 @@ export const POST = async (req: NextRequest) => {
     let totalPrice = 0;
     const products = carts.map((cart: ICart) => {
       const price = cart?.productSalePrice || cart?.productPrice;
-      totalPrice += price * (cart?.quantity || 1); // Sum up total price
+      totalPrice += price * (cart?.quantity || 1);
 
       return cart?.productTitle;
     });
-    // Prepare line items for Stripe Checkout
+
     const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] =
       carts.map((cart: ICart) => ({
         quantity: 1,
@@ -102,6 +101,7 @@ export const POST = async (req: NextRequest) => {
       success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/carts?success=1`,
       cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/carts?success=0`,
       metadata: {
+        userId: userId,
         orderId: order[0]?.id,
       },
     });

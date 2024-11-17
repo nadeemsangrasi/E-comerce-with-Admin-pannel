@@ -55,7 +55,7 @@ const ProductCard = ({
   };
 
   const handleEditProduct = () => {
-    router.push("/new-product?productId=" + product.id);
+    router.push("/create-product?productId=" + product.id);
   };
 
   return (
@@ -69,7 +69,7 @@ const ProductCard = ({
             height={1000}
             className="w-full hover:scale-110 duration-150 hover:duration-150 "
           />
-          {/* ExpandIcon (hidden by default, shown on hover) */}
+
           <ExpandIcon
             className="absolute  left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer group-hover:duration-300 top-1/2 "
             size={32}

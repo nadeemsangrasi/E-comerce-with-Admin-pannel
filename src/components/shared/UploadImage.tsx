@@ -3,7 +3,7 @@ import { Trash, Upload } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { CldUploadWidget } from "next-cloudinary";
+import { CldUploadWidget, CloudinaryUploadWidgetInfo } from "next-cloudinary";
 const UploadImage: React.FC<IUploadImageProps> = ({
   onChange,
   value = [],
@@ -46,7 +46,8 @@ const UploadImage: React.FC<IUploadImageProps> = ({
         <CldUploadWidget
           uploadPreset="wjwwstzo"
           onSuccess={(result) => {
-            const newImageUrl = result.info.secure_url as string;
+            const info = result.info as CloudinaryUploadWidgetInfo;
+            const newImageUrl = info.secure_url;
             if (newImageUrl) {
               onChange((prevImages: string[]) => [...prevImages, newImageUrl]);
             }

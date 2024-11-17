@@ -45,7 +45,7 @@ const ProductClient = ({ product }: { product: IProduct }) => {
       </div>
 
       <div className="space-y-8">
-        {/* Product Header */}
+    
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
@@ -71,7 +71,7 @@ const ProductClient = ({ product }: { product: IProduct }) => {
           </div>
         </div>
 
-        {/* Pricing Section */}
+       
         <div className="space-y-2">
           <div className="flex items-center space-x-4">
             {product?.salePrice ? (
@@ -104,7 +104,7 @@ const ProductClient = ({ product }: { product: IProduct }) => {
           <p className="text-sm text-gray-500">{product?.description}</p>
         </div>
 
-        {/* Product Details */}
+      
         <div className="space-y-6">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold dark:text-white">
@@ -143,7 +143,7 @@ const ProductClient = ({ product }: { product: IProduct }) => {
           </div>
         </div>
 
-        {/* Action Buttons */}
+        
         <div className="space-y-4">
           <ProductButton
             label="Add To Cart"

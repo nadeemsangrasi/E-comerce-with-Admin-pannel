@@ -9,7 +9,7 @@ const ExploreMoreCard = ({ product }: { product: IProduct }): JSX.Element => {
   return (
     <aside className="flex w-full max-w-sm p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-transform transform hover:scale-105 mx-auto">
       <Link href={`/products/${product.id}`} className="flex items-start gap-4">
-        {/* Thumbnail Image */}
+        
         {product.images[0] && (
           <Image
             src={product.images[0].imageUrl}
@@ -19,15 +19,12 @@ const ExploreMoreCard = ({ product }: { product: IProduct }): JSX.Element => {
             width={1000}
           />
         )}
-
-        {/* Card Content */}
+        \
         <div className="flex-1 space-y-2">
-          {/* Title */}
           <h1 className="text-md font-semibold text-gray-900 dark:text-gray-100 leading-tight">
             {product.title}
           </h1>
 
-          {/* Category and Date */}
           <div className="text-sm text-gray-500 dark:text-gray-400">
             <span className="font-medium text-red-500">{product.category}</span>
             <span className="ml-2">
@@ -35,7 +32,6 @@ const ExploreMoreCard = ({ product }: { product: IProduct }): JSX.Element => {
             </span>
           </div>
 
-          {/* Star Rating */}
           <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((star, i) => (
               <Star
@@ -49,7 +45,6 @@ const ExploreMoreCard = ({ product }: { product: IProduct }): JSX.Element => {
             ))}
           </div>
 
-          {/* Pricing */}
           <div className="flex items-center text-sm font-medium">
             {product.salePrice ? (
               <>

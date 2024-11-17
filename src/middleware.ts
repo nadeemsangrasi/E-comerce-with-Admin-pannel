@@ -8,7 +8,7 @@ const adminRoutes = [
   "/admin-categories",
   "/admin-products",
   "/orders",
-  "/new-product",
+  "/create-product",
 ];
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
@@ -45,16 +45,18 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
 export const config = {
   matcher: [
+    "/",
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+    "/sign-in/:path*",
+    "/sign-up/:path*",
+    "/carts/:path*",
     "/dashboard/:path*",
     "/accounts/:path*",
     "/admin-brands/:path*",
     "/admin-categories/:path*",
     "/admin-products/:path*",
     "/orders/:path*",
-    "/new-product/:path*",
-    "/sign-in",
-    "/sign-up",
-    "/carts",
-    "/api/((?!webhooks).)*",
+    "/create-product/:path*",
   ],
 };

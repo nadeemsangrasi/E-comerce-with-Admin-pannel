@@ -54,7 +54,9 @@ export function OrderTable() {
 
   const handleDeleteOrder = async (id: string) => {
     try {
-      const res = await axios.delete("/api/order?orderId=" + id);
+      const res = await axios.delete(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order?orderId=${id}`
+      );
       if (res.status !== 200) {
         console.error(res.data.message);
         toast.error(res.data.message);
@@ -144,7 +146,7 @@ export function OrderTable() {
                 Copy Order ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleDeleteOrder(order.id)}>
+              <DropdownMenuItem onClick={() => handleDeleteOrder(order?.id)}>
                 Delete Order
               </DropdownMenuItem>
             </DropdownMenuContent>

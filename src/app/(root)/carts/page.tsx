@@ -9,13 +9,8 @@ import toast from "react-hot-toast";
 import Loader from "@/components/shared/Loader";
 import CartCard from "./CartCard";
 import ExploreMoreCard from "../products/ExploreMoreCard";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
 
 const CartPage = () => {
-  const searchParams = useSearchParams();
-  const checkoutStatus = searchParams.get("success");
   const {
     cart,
     removeFromCart,
@@ -25,7 +20,7 @@ const CartPage = () => {
     handleCartDecrement,
     products,
   } = useProductContext();
-  const { user } = useUser();
+
   const handleCheckOut = async () => {
     try {
       const response = await axios.post("/api/checkout", {
@@ -40,16 +35,6 @@ const CartPage = () => {
       toast.error(errorMessage?.message || "An error occurred");
     }
   };
-
-  useEffect(() => {
-    if (checkoutStatus?.toString() === "1") {
-      localStorage.removeItem(`cart_${user?.id}`);
-      // clearCart(); // Clears the cart from context state
-      toast.success("Order successful. Cart cleared.");
-    } else if (checkoutStatus?.toString() === "0") {
-      toast.error("Order cancelled");
-    }
-  }, [checkoutStatus]);
 
   return (
     <Wrapper>

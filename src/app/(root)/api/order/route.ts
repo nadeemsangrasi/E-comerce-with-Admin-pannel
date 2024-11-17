@@ -32,15 +32,12 @@ export const DELETE = async (req: NextRequest) => {
       .where(eq(orderTable.id, orderId as unknown as number))
       .returning();
 
-    const deleteOrderItem = await db
+    await db
       .delete(orderItemTable)
       .where(eq(orderItemTable.orderId, orderId as unknown as number))
       .returning();
     if (deletedorder.length === 0) {
       return errorResponse("order not found", false, 404);
-    }
-    if (deleteOrderItem.length === 0) {
-      return errorResponse("order items not found", false, 404);
     }
 
     return successResponse("order deleted successfully", true, 200);

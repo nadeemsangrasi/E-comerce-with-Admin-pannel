@@ -1,32 +1,20 @@
 "use server";
 
 import { db } from "@/db";
-import { orderItemTable, orderTable } from "@/db/schema";
+import { orderTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export const getTotalSales = async () => {
+export const getTotalSales = async (): Promise<number> => {
   try {
     const paidOrders = await db
-      .select()
+      .select({
+        id: orderTable.id,
+        totalPrice: orderTable.totalPrice,
+      })
       .from(orderTable)
       .where(eq(orderTable.isPaid, true));
 
-    let totalSales = 0;
-
-    for (const order of paidOrders) {
-      const orderItems = await db
-        .select()
-        .from(orderItemTable)
-        .where(eq(orderItemTable.orderId, order.id));
-
-      for (const item of orderItems) {
-        totalSales += item.salePrice
-          ? item.salePrice * item.quantity
-          : item.price * item.quantity;
-      }
-    }
-
-    return totalSales;
+    return paidOrders.length;
   } catch (error) {
     console.error("Error fetching total sales data:", error);
     return 0;

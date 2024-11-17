@@ -6,7 +6,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-  SelectItem as UiSelectItem, // Rename this import
+  SelectItem as UiSelectItem, 
 } from "@/components/ui/select";
 
 export function SelectItem({

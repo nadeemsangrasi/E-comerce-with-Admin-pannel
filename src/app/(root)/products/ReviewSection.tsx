@@ -11,7 +11,7 @@ import ReviewCard from "./ReviewCard";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+
 export interface IReview {
   id: string;
   productId: string;

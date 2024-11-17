@@ -1,7 +1,7 @@
 "use client";
 import DashboardPagesWrapper from "@/components/dashboard/DashboardPagesWrapper";
 import React, { useEffect, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form"; // Import FormProvider
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { createProductSchema } from "@/schemas/CreateProductSchema";
@@ -54,7 +54,7 @@ const NewProduct = () => {
       price: product ? Number(product.price) : 99.9,
       salePrice: product ? Number(product.salePrice) : 0,
       totalStock: product ? Number(product.totalStock) : 1,
-      isArchived: product?.isArchived || false,
+      isArchived: product?.isArchive || false,
       isFeatured: product?.isFeatured || false,
     },
   });
