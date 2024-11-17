@@ -1,6 +1,6 @@
 # Fullstack E-Commerce with Admin Dashboard
 
-A robust fullstack e-commerce platform featuring multi-vendor support, a comprehensive admin panel, and user-friendly functionalities. The project provides seamless shopping experiences and efficient admin controls.
+A robust fullstack e-commerce platform featuring a comprehensive admin panel, and user-friendly functionalities. The project provides seamless shopping experiences and efficient admin controls.
 
 ---
 
