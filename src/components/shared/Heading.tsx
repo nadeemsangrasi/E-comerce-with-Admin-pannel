@@ -9,7 +9,7 @@ const Heading = ({
   className?: string;
 }) => {
   return (
-    <div className="relative text-center">
+    <div className="relative">
       <h3
         className={`${className} text-2xl sm:text-3xl md:text-4xl font-extrabold z-20 absolute `}
       >

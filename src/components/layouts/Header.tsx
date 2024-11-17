@@ -9,6 +9,7 @@ import { NavSelect } from "../shared/NavSelect";
 import HeaderClient from "../shared/HeaderClient";
 import { fetchBrands, fetchCategory } from "@/lib/fetchBrandAndCategory";
 import { SideBar } from "../shared/SideBar";
+import MobileHeaderClient from "../shared/mobileHeaderClient";
 const Header = async () => {
   const categories = await fetchCategory();
   const brands = await fetchBrands();
@@ -22,7 +23,7 @@ const Header = async () => {
       </h1>
       <div className="md:hidden flex gap-1">
         <div className="list-none flex gap-3 items-center">
-          <HeaderClient />
+          <MobileHeaderClient />
         </div>
         <SideBar categories={categories} brands={brands} />
       </div>
